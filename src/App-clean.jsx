@@ -64,6 +64,7 @@ function App() {
       <ControlButtons
         onSpeech={handleSpeech}
         onVoiceSelector={toggleVoiceSelector}
+        onSelectNamMinh={selectNamMinhVoice}
         showVoiceSelector={showVoiceSelector}
         selectedVoice={selectedVoice}
       />
