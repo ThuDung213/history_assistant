@@ -6,6 +6,7 @@ import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import VoiceSelector from "./components/VoiceSelector";
 import ControlButtons from "./components/ControlButtons";
 import MicrophoneControl from "./components/MicrophoneControl";
+import { askAgent } from "./api/agentAPI";
 
 function App() {
   const [animation, setAnimation] = useState('Idle');
@@ -23,14 +24,19 @@ function App() {
   } = useSpeechSynthesis();
 
   // Speech Recognition hook
-  const { isListening, startListening } = useSpeechRecognition((transcript) => {
-    handleSpeech(`Tôi đã nghe được: ${transcript}`);
+  const { isListening, startListening } = useSpeechRecognition(async (transcript) => {
+    setAnimation("Idle");
+    setSpeakingText("Tôi đang suy nghĩ");
+
+    const answer = await askAgent(transcript);
+    console.log("answer", answer);
+    handleSpeech(answer);
   });
 
   const handleSpeech = (text) => {
     setSpeakingText(text);
     const utterance = speak(text);
-    
+
     if (utterance) {
       utterance.onend = () => {
         setAnimation("Idle");
@@ -54,10 +60,10 @@ function App() {
     <>
       <Canvas shadows camera={{ position: [0, 0, 8], fov: 42 }}>
         <color attach="background" args={["#ececec"]} />
-        <Experience 
-          animation={animation} 
-          setAnimation={setAnimation} 
-          speakingText={speakingText} 
+        <Experience
+          animation={animation}
+          setAnimation={setAnimation}
+          speakingText={speakingText}
         />
       </Canvas>
 
