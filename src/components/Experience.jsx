@@ -3,7 +3,11 @@ import { Avatar } from "./Avatar";
 import { useThree } from "@react-three/fiber";
 
 export const Experience = ({ animation, setAnimation, speakingText }) => {
-  const texture = useTexture('/textures/bg.png');
+  // Lấy giờ hiện tại
+  const hour = new Date().getHours();
+  // Chọn background theo giờ
+  const bgFile = (hour >= 6 && hour < 18) ? '/textures/bg.png' : '/textures/bg_night.png';
+  const texture = useTexture(bgFile);
   const viewport = useThree((state) => state.viewport);
   return (
     <>

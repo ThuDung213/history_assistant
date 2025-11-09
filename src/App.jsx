@@ -6,7 +6,7 @@ import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import VoiceSelector from "./components/VoiceSelector";
 import ControlButtons from "./components/ControlButtons";
 import MicrophoneControl from "./components/MicrophoneControl";
-import { askAgent } from "./api/agentAPI";
+import { askAgent } from "./api/agentApi";
 
 function App() {
   const [animation, setAnimation] = useState('Idle');
