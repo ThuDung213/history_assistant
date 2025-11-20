@@ -1,0 +1,335 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 1,
+                "title": "Núi Ngũ Hành Sơn",
+                "description": "Quần thể 6 ngọn núi đá vôi ven biển, di tích nổi bật gần trung tâm Đà Nẵng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.2631068513552,
+                    16.003926958124705
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 2,
+                "title": "Bãi biển Mỹ Khê",
+                "description": "Bãi biển nổi tiếng với cát trắng, nước trong xanh, nằm ngay gần trung tâm Đà Nẵng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.24978535224038,
+                    16.04786555851293
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 3,
+                "title": "Chùa Linh Ứng Sơn Trà (Bãi Bụt)",
+                "description": "Ngôi chùa lớn trên bán đảo Sơn Trà, với tượng Quan Âm cao 67 m, điểm tâm linh và du lịch nổi bật."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.27775852437279,
+                    16.100446129006503
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 4,
+                "title": "Bà Nà Hills – Cầu Vàng",
+                "description": "Khu du lịch lớn nằm trên núi, với biểu tượng Cầu Vàng “bàn tay khổng lồ” giữ dải lụa vàng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.99607479692772,
+                    15.995342614448065
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 5,
+                "title": "Đèo Hải Vân",
+                "description": "Điểm cảnh quan hùng vĩ ở ranh giới Đà Nẵng & Huế, đường đèo nối liền biển và núi."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.1324727730065,
+                    16.201891911821942
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 6,
+                "title": "Bán đảo Sơn Trà",
+                "description": "“Lá phổi xanh” của thành phố, nơi rừng núi ôm biển và có nhiều điểm ngắm cảnh, sinh thái."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.26949703167683,
+                    16.120920334150654
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 7,
+                "title": "Thành Điện Hải",
+                "description": "Di tích pháo đài cổ nằm tại trung tâm Đà Nẵng, gắn với lịch sử quân sự vùng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.2216282008365,
+                    16.076404629016377
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 8,
+                "title": "Đình Nại Nam",
+                "description": "Ngôi đình nằm tại phố Nam Sơn, phường Hòa Cường (Hải Châu) xây năm 1905, mang kiến trúc thời Nguyễn."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22740295135588,
+                    16.03734515573266
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 9,
+                "title": "Căn cứ cách mạng K20",
+                "description": "Khu căn cứ nằm tại Khuê Mỹ, Ngũ Hành Sơn – nơi hoạt động cách mạng trong kháng chiến."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.2431891576368,
+                    16.022393213801344
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 10,
+                "title": "Bảo tàng Hồ Chí Minh – chi nhánh Quân khu 5",
+                "description": "Nơi trưng bày hiện vật về Hồ Chí Minh và lực lượng Quân khu 5, tại số 01 Duy Tân, Đà Nẵng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.21758099553571,
+                    16.04892884133603
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 11,
+                "title": "Bảo tàng Đà Nẵng",
+                "description": "Nằm tại số 24 Trần Phú, trưng bày hơn 2.500 hiện vật về lịch sử và văn hóa Đà Nẵng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22408481273136,
+                    16.07473975303819
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 12,
+                "title": "Đình làng Bồ Bản",
+                "description": "Đình làng ở thôn Bồ Bản, xã Hòa Phong (Hòa Vang) – công trình kiến trúc được xếp hạng di tích văn hoá."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.15189072437032,
+                    15.987924409279406
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 13,
+                "title": "Đình làng Nại Nam",
+                "description": "Di tích đình làng nằm tại khối phố Nam Sơn, phường Hòa Cường Nam, quận Hải Châu."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22740295135588,
+                    16.037355467021612
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 14,
+                "title": "Khu lưu niệm Nhà Mẹ Nhu",
+                "description": "Khu lưu niệm tại Đà Nẵng, từng là nơi hoạt động cách mạng, hiện là di tích lịch sử văn hoá."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.1851122955362,
+                    16.07240205008221
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 15,
+                "title": "Cầu Sông Hàn",
+                "description": "Cây cầu quay đầu tiên của Việt Nam, biểu tượng đặc trưng của thành phố Đà Nẵng, nối liền hai bờ sông Hàn."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22674245135656,
+                    16.072387202663077
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 16,
+                "title": "Chợ Hàn",
+                "description": "Khu chợ trung tâm lâu đời của Đà Nẵng, hình thành từ thế kỷ 20, nổi tiếng với đặc sản và hàng thủ công."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.221768658408,
+                    16.068391768658408
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 17,
+                "title": "Cầu Rồng",
+                "description": "Cây cầu thép hình rồng phun lửa và nước vào cuối tuần, tượng trưng cho sự phát triển năng động của Đà Nẵng."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22774623971559,
+                    16.06128976559708
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 18,
+                "title": "Cầu Trần Thị Lý",
+                "description": "Cầu dây văng nghiêng độc đáo với trụ nghiêng cao 145m, biểu tượng kiến trúc hiện đại của thành phố."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22996947180297,
+                    16.05051445724704
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 19,
+                "title": "Bảo tàng Điêu khắc Chăm",
+                "description": "Nơi lưu giữ bộ sưu tập hiện vật Chăm Pa lớn nhất thế giới, được xây dựng năm 1915 theo kiến trúc Gothic–Indochine."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22332133971541,
+                    16.06051719661843
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 20,
+                "title": "Phố cổ Hội An",
+                "description": "Di sản văn hóa thế giới được UNESCO công nhận, từng là thương cảng sầm uất của miền Trung thế kỷ 16–19."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.32638553600874,
+                    15.876853173721264
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 21,
+                "title": "Thánh địa Mỹ Sơn",
+                "description": "Khu di tích đền tháp Chăm Pa cổ kính, được UNESCO công nhận là Di sản văn hóa thế giới năm 1999."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.10782182875106,
+                    15.791268057068743
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 22,
+                "title": "Quần đảo Hoàng Sa",
+                "description": "Quần đảo thuộc chủ quyền Việt Nam, do thành phố Đà Nẵng quản lý. Từ thế kỷ 17, các chúa Nguyễn đã lập đội Hoàng Sa ra khai thác và bảo vệ. Đây là phần lãnh thổ thiêng liêng, mang ý nghĩa lịch sử – chủ quyền quốc gia."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    111.40010913332327,
+                    17.2188379606239
+                ]
+            }
+        }
+    ]
+}
