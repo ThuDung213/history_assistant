@@ -1,7 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import MapPage from './pages/map/MapPage';
 import AgentPage from './pages/agent/AgentPage';
+import AdminLogin from './pages/auth/AdminLogin';
+import AdminDashboard from './pages/admin/Dashboard';
+import { isAdminLoggedIn } from './hooks/auth/useAuth';
 
 const Navbar = () => (
   <nav style={{
@@ -18,9 +21,14 @@ const Navbar = () => (
 );
 
 function App() {
+  const location = useLocation();
+
+  const hideNavbarRoutes = ["/admin/login", "/admin/dashboard"];
+
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
   return (
     <>
-      <Navbar />
+      {!shouldHideNavbar && <Navbar />}
       <div className="main-content" style={{ position: 'relative', height: 'calc(100vh - 50px)' }}>
         <Routes>
           {/* Trang mặc định sẽ là bản đồ */}
@@ -28,6 +36,15 @@ function App() {
 
           {/* Trang chứa Trợ lý Ảo và Canvas 3D */}
           <Route path="/agent" element={<AgentPage />} />
+
+          {/* Admin Login */}
+          <Route path='/admin/login' element={<AdminLogin />} />
+
+          {/* Admin dashboard */}
+          <Route
+            path="/admin/dashboard"
+            element={isAdminLoggedIn() ? <AdminDashboard /> : <Navigate to="/admin/login" />}
+          />
         </Routes>
       </div>
     </>
