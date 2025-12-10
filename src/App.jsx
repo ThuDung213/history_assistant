@@ -5,6 +5,7 @@ import AgentPage from './pages/agent/AgentPage';
 import AdminLogin from './pages/auth/AdminLogin';
 import AdminDashboard from './pages/admin/Dashboard';
 import { isAdminLoggedIn } from './hooks/auth/useAuth';
+import CommunityPage from './pages/community/Community';
 
 const Navbar = () => (
   <nav style={{
@@ -16,6 +17,9 @@ const Navbar = () => (
     </Link>
     <Link to="/agent" style={{ color: 'white', textDecoration: 'none' }}>
       Trợ Lý Ảo (3D Agent)
+    </Link>
+    <Link to="/community" style={{ color: 'white', textDecoration: 'none' }}>
+      Cộng Đồng
     </Link>
   </nav>
 );
@@ -36,6 +40,9 @@ function App() {
 
           {/* Trang chứa Trợ lý Ảo và Canvas 3D */}
           <Route path="/agent" element={<AgentPage />} />
+
+          {/* Community page */}
+          <Route path='/community' element={<CommunityPage />} />
 
           {/* Admin Login */}
           <Route path='/admin/login' element={<AdminLogin />} />

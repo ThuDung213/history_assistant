@@ -1,0 +1,326 @@
+/* Import Font hỗ trợ Tiếng Việt đầy đủ */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
+
+:root {
+  /* Bảng màu "Sử Quán" */
+  --bg-body: #f4ecd8;       /* Màu giấy dó nền */
+  --bg-paper: #fdfbf7;      /* Màu giấy viết (sáng hơn) */
+  --ink-primary: #2c1e1a;   /* Màu mực than (Đen nâu) */
+  --ink-secondary: #5d4037; /* Màu mực nhạt (Nâu đất) */
+  --accent-red: #9a2a2a;    /* Màu đỏ son (Dấu triện) */
+  --accent-gold: #cfaa7d;   /* Màu vàng đồng cũ */
+  --border-color: #dccbb5;
+  
+  /* Cấu hình Shadow tạo độ nổi 3D nhẹ */
+  --shadow-card: 0 2px 4px rgba(62, 39, 35, 0.05), 
+                 0 8px 16px rgba(62, 39, 35, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-body);
+  /* Texture nhiễu hạt nhẹ để giả giấy cũ */
+  background-image: radial-gradient(#8d6e63 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  color: var(--ink-primary);
+  font-family: 'Lora', serif; /* Font có chân, đọc rất êm mắt */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Layout Chung --- */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px; 
+}
+
+/* --- Header --- */
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--ink-primary);
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.page-header::after {
+  /* Đường kẻ đôi trang trí */
+  content: '';
+  position: absolute;
+  bottom: -6px; left: 0; right: 0;
+  border-bottom: 1px solid var(--ink-primary);
+}
+
+.brand-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--ink-primary);
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--ink-secondary);
+  font-size: 1rem;
+}
+
+/* --- Khung Soạn Thảo (Composer) --- */
+.composer-box {
+  background: var(--bg-paper);
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
+  margin-bottom: 30px;
+  position: relative;
+}
+
+/* Trang trí 4 góc */
+.corner-decor {
+  position: absolute;
+  width: 10px; height: 10px;
+  border: 2px solid var(--accent-gold);
+  pointer-events: none;
+}
+.tl { top: 4px; left: 4px; border-right: none; border-bottom: none; }
+.tr { top: 4px; right: 4px; border-left: none; border-bottom: none; }
+.bl { bottom: 4px; left: 4px; border-right: none; border-top: none; }
+.br { bottom: 4px; right: 4px; border-left: none; border-top: none; }
+
+.composer-input-group {
+  display: flex;
+  gap: 15px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-gold);
+  padding: 2px;
+  background: #fff;
+}
+
+.composer-textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  resize: none;
+  outline: none;
+  min-height: 80px;
+  color: var(--ink-primary);
+  border-bottom: 1px dashed var(--border-color);
+  transition: border-color 0.3s;
+}
+
+.composer-textarea:focus {
+  border-bottom: 1px solid var(--accent-red);
+}
+
+.composer-textarea::placeholder {
+  color: #aca090;
+  font-style: italic;
+}
+
+.composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-left: 63px; /* Căn thẳng với text area */
+}
+
+.btn-seal {
+  background-color: var(--accent-red);
+  color: #fff;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #6b1d1d; /* Hiệu ứng nút nổi */
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-seal:hover {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #6b1d1d;
+  background-color: #b93333;
+}
+
+/* --- Bài Viết (Post Card) --- */
+.post-card {
+  background: var(--bg-paper);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden; /* Để bo góc ảnh */
+}
+
+.post-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.post-meta {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  font-style: italic;
+}
+
+.post-content {
+  padding: 0 16px 16px;
+  line-height: 1.7; /* Dãn dòng rộng dễ đọc */
+  font-size: 1.05rem;
+}
+
+.link-block {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  background: #faf8f3;
+  margin: 0 16px 16px;
+  border-radius: 4px;
+  transition: opacity 0.2s;
+}
+
+.link-block:hover {
+  opacity: 0.9;
+  border-color: var(--accent-gold);
+}
+
+.link-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-color);
+  filter: sepia(20%) contrast(90%); /* Màu ảnh hơi cũ */
+}
+
+.link-info {
+  padding: 12px;
+}
+
+.link-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: var(--ink-primary);
+}
+
+.link-source {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  letter-spacing: 1px;
+}
+
+/* --- Action Bar --- */
+.action-bar {
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  padding: 4px 0;
+}
+
+.action-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background-color: rgba(154, 42, 42, 0.05);
+  color: var(--accent-red);
+}
+
+.action-btn.active {
+  color: var(--accent-red);
+}
+
+/* --- Comments --- */
+.comments-container {
+  background: #fdfbf7;
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.comment-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comment-bubble {
+  background: #f2efe9;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border-top-left-radius: 2px;
+}
+
+.comment-author {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  display: block;
+  font-family: 'Playfair Display', serif;
+}
+
+.comment-input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 16px;
+}
+
+.comment-input {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Lora', serif;
+  outline: none;
+}
+
+.comment-input:focus {
+  border-color: var(--accent-gold);
+}
