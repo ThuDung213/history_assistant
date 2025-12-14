@@ -1,0 +1,108 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Wrapper của App */
+.ha-app {
+  height: 100vh;         
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.ha-routeViewport {
+  flex: 1;
+  min-height: 0;           
+  position: relative;
+  overflow: auto;        
+}
+
+.ha-routeViewport--noScroll {
+  overflow: hidden;
+}
+
+.ha-main-content {
+  position: relative;
+  min-height: 100vh;
+}
+
+.ha-contentMenu {
+  position: fixed;
+  top: 12px;
+  left: auto;              
+  right: 12px;             
+  z-index: 9999;
+}
+
+.ha-menuBtn {
+  cursor: pointer;
+  color: #111;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ha-menuBtn--fab {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.ha-overlayInContent {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.18);
+  z-index: 9998;
+}
+
+.ha-menuPanelInContent {
+  position: fixed;
+  left: auto;             
+  right: 12px;           
+  top: 64px;
+  width: 260px;
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+  z-index: 9999;
+
+  display: none;
+}
+
+.ha-menuPanelInContent.is-open {
+  display: block;
+}
+
+.ha-menuLink {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.ha-menuLink:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.ha-menuLink.is-active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  outline: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.ha-menuDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 8px 0;
+}

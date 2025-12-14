@@ -1,0 +1,113 @@
+/* Hình nền lịch sử */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('/assets/history-bg.jpg') center/cover no-repeat, #2c2c2c;
+  color: #f5e6c8;
+  font-family: 'Merriweather', serif;
+}
+
+/* Khung đăng nhập/đăng ký */
+.auth-box {
+  background: rgba(44, 36, 24, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(44,36,24,0.4);
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  border: 2px solid #c2b280;
+  position: relative;
+}
+
+.auth-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #c2b280;
+  letter-spacing: 2px;
+  font-family: 'Merriweather', serif;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 #6e5c2b;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.auth-input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #c2b280;
+  background: #3a2f1a;
+  color: #f5e6c8;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #e1c16e;
+  background: #4a3a1a;
+}
+
+.auth-button {
+  padding: 12px;
+  background: linear-gradient(90deg, #c2b280 0%, #e1c16e 100%);
+  color: #3a2f1a;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(44,36,24,0.2);
+  transition: background 0.3s;
+}
+
+.auth-button:hover {
+  background: linear-gradient(90deg, #e1c16e 0%, #c2b280 100%);
+}
+
+.auth-error {
+  color: #ff6b6b;
+  background: rgba(255, 0, 0, 0.08);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ff6b6b;
+}
+
+.auth-link {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+
+.auth-link a {
+  color: #e1c16e;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.auth-link a:hover {
+  color: #c2b280;
+}
+
+/* Icon lịch sử */
+.auth-box::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+  background: url('/assets/history-icon.png') center/contain no-repeat;
+  opacity: 0.8;
+}
