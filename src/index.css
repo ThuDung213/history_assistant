@@ -1,4 +1,56 @@
 @import "tailwindcss";
+
+@keyframes ha-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ha-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ha-shake-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-fade-in {
+  animation: ha-fade-in 450ms ease-out both;
+}
+
+.animate-fade-in-up {
+  animation: ha-fade-in-up 500ms ease-out both;
+}
+
+.animate-shake-x {
+  animation: ha-shake-x 350ms ease-in-out both;
+}
+
 #root {
   width: 100vw;
   height: 100vh;
@@ -6,6 +58,9 @@
 
 body {
   margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Microphone pulse animation */

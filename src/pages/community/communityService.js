@@ -13,12 +13,43 @@ export async function listPosts({ limit = 20, signal } = {}) {
     author: p.author,
     avatar: p.avatar || avatarFallback(p.author),
     createdAt: p.createdAt,
+    approvedAt: p.approvedAt ?? p.approved_at ?? p.publishedAt ?? p.published_at ?? null,
+    moderatedAt: p.moderatedAt ?? p.moderated_at ?? null,
     content: p.content,
     link: p.link || null,
     images: Array.isArray(p.images) ? p.images : [],
     likes: p.likes ?? 0,
     commentCount: p.commentCount ?? 0,
     isLiked: !!p.isLiked,
+    status: p.status ?? null,
+    flags: Array.isArray(p.flags) ? p.flags : Array.isArray(p.tags) ? p.tags : [],
+    moderationFeedback: p.moderationFeedback ?? p.moderation_feedback ?? p.feedback ?? null,
+    rejectedReason: p.rejectedReason ?? p.rejected_reason ?? null,
+  }));
+}
+
+export async function listMyPosts({ limit = 20, signal } = {}) {
+  const res = await communityApi.listMyPosts({ limit }, signal ? { signal } : undefined);
+  const data = unwrap(res);
+  const items = data?.items || [];
+  return items.map((p) => ({
+    id: p.id,
+    authorId: p.authorId ?? p.author_id ?? null,
+    author: p.author,
+    avatar: p.avatar || avatarFallback(p.author),
+    createdAt: p.createdAt,
+    approvedAt: p.approvedAt ?? p.approved_at ?? p.publishedAt ?? p.published_at ?? null,
+    moderatedAt: p.moderatedAt ?? p.moderated_at ?? null,
+    content: p.content,
+    link: p.link || null,
+    images: Array.isArray(p.images) ? p.images : [],
+    likes: p.likes ?? 0,
+    commentCount: p.commentCount ?? 0,
+    isLiked: !!p.isLiked,
+    status: p.status ?? null,
+    flags: Array.isArray(p.flags) ? p.flags : Array.isArray(p.tags) ? p.tags : [],
+    moderationFeedback: p.moderationFeedback ?? p.moderation_feedback ?? p.feedback ?? null,
+    rejectedReason: p.rejectedReason ?? p.rejected_reason ?? null,
   }));
 }
 
@@ -45,6 +76,11 @@ export async function deletePost(postId) {
 
 export async function likeOrUnlikePost(postId, isCurrentlyLiked) {
   const res = isCurrentlyLiked ? await communityApi.unlikePost(postId) : await communityApi.likePost(postId);
+  return unwrap(res);
+}
+
+export async function reportPost(postId, payload) {
+  const res = await communityApi.reportPost(postId, payload);
   return unwrap(res);
 }
 

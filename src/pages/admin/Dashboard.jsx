@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, CssBaseline, Toolbar } from "@mui/material";
+import { Box, CssBaseline } from "@mui/material";
 
 
 
@@ -7,7 +7,8 @@ import Grid from "@mui/material/Grid";
 import VlogPostEditor from "./sections/VlogPostEditor";
 import ChatbotSidebar from "./sections/ChatbotSidebar";
 import HomePageContent from "./sections/HomePageContent";
-import Topbar from "./sections/AdminTopbar";
+import PostModeration from "./sections/PostModeration";
+import PostReports from "./sections/PostReports";
 import Sidebar from "./sections/AdminSidebar";
 
 const drawerWidth = 240;
@@ -28,6 +29,10 @@ export default function AdminDashboard() {
                         </Grid>
                     </Grid>
                 );
+            case "post_moderation":
+                return <PostModeration />;
+            case "post_reports":
+                return <PostReports />;
             case "home":
             default:
                 return <HomePageContent />;
@@ -37,8 +42,6 @@ export default function AdminDashboard() {
     return (
         <Box sx={{ display: "flex" }}>
             <CssBaseline />
-
-            <Topbar drawerWidth={drawerWidth} activeKey={activeNavItem} />
 
             <Sidebar
                 drawerWidth={drawerWidth}
@@ -56,7 +59,6 @@ export default function AdminDashboard() {
                     overflowY: "auto",
                 }}
             >
-                <Toolbar />
                 {renderContent()}
             </Box>
         </Box>

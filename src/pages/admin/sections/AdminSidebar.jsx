@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    Box,
     Drawer,
     Toolbar,
     Divider,
@@ -12,13 +13,26 @@ import {
 
 import HomeIcon from "@mui/icons-material/Home";
 import DescriptionIcon from "@mui/icons-material/Description";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
     { name: "Trang chủ", icon: HomeIcon, key: "home" },
     { name: "Vlog & Bài viết", icon: DescriptionIcon, key: "vlog_posts" },
+    { name: "Kiểm duyệt bài viết", icon: FactCheckIcon, key: "post_moderation" },
+    { name: "Báo cáo vi phạm", icon: ReportProblemIcon, key: "post_reports" },
 ];
 
 export default function Sidebar({ drawerWidth, activeKey, setActiveKey }) {
+    const navigate = useNavigate();
+
+    const handleAdminLogout = () => {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login", { replace: true });
+    };
+
     return (
         <Drawer
             sx={{
@@ -29,6 +43,8 @@ export default function Sidebar({ drawerWidth, activeKey, setActiveKey }) {
                     boxSizing: "border-box",
                     bgcolor: "#1f2937",
                     color: "white",
+                    display: "flex",
+                    flexDirection: "column",
                 },
             }}
             variant="permanent"
@@ -67,6 +83,25 @@ export default function Sidebar({ drawerWidth, activeKey, setActiveKey }) {
                         </ListItemButton>
                     </ListItem>
                 ))}
+            </List>
+
+            <Box sx={{ flexGrow: 1 }} />
+
+            <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+            <List>
+                <ListItem disablePadding>
+                    <ListItemButton
+                        onClick={handleAdminLogout}
+                        sx={{
+                            "&:hover": { bgcolor: "#374151" },
+                        }}
+                    >
+                        <ListItemIcon sx={{ color: "#9ca3af" }}>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Đăng xuất" />
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Drawer>
     );
