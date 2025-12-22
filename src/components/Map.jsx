@@ -3,7 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "../styles/map.css";
 
 import PlaceModal from "./PlaceModal";
-import { locationsToGeoJSON } from "../utils/locationsToGeoJSON";
+import { locationsToGeoJSON } from "../utils/src/utils/locationsToGeoJSON";
 
 const INITIAL_CENTER = [108.21168309278522, 16.060197215687733];
 const INITIAL_ZOOM = 11;

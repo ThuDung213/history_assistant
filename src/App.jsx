@@ -17,6 +17,9 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import { logout } from "./api/auth/authService";
 import "./App.css";
+import HomePageContent from "./pages/admin/sections/HomePageContent";
+import VlogPostEditor from "./pages/admin/posts/VlogPostEditor";
+import PostsPage from "./pages/admin/posts/PostsPage";
 
 const ContentMenu = () => {
   const location = useLocation();
