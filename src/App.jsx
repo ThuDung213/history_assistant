@@ -20,6 +20,7 @@ import "./App.css";
 import HomePageContent from "./pages/admin/sections/HomePageContent";
 import VlogPostEditor from "./pages/admin/posts/VlogPostEditor";
 import PostsPage from "./pages/admin/posts/PostsPage";
+import GalleryPage from "./pages/gallery/GalleryPage";
 
 const ContentMenu = () => {
   const location = useLocation();
@@ -96,6 +97,15 @@ const ContentMenu = () => {
           Cộng Đồng
         </NavLink>
 
+        <NavLink
+          to="/gallery"
+          className={({ isActive }) =>
+            `ha-menuLink ${isActive ? "is-active" : ""}`
+          }
+        >
+          Thư Viện Ảnh
+        </NavLink>
+
         <div className="ha-menuDivider" />
 
         <button
@@ -137,6 +147,7 @@ function App() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
