@@ -20,18 +20,20 @@ function AgentPage() {
         speak,
         testVoice,
         selectVoice,
-        selectNamMinhVoice
+    selectNamMinhVoice,
     } = useSpeechSynthesis();
 
     // Speech Recognition hook
-    const { isListening, startListening } = useSpeechRecognition(async (transcript) => {
+  const { isListening, startListening } = useSpeechRecognition(
+    async (transcript) => {
         setAnimation("Idle");
         setSpeakingText("Tôi đang suy nghĩ");
 
         const answer = await askAgent(transcript);
-        console.log("answer", answer);
-        handleSpeech(answer);
-    });
+        console.log("answer", answer.answer);
+        handleSpeech(answer.answer);
+    }
+  );
 
     const handleSpeech = (text) => {
         setSpeakingText(text);
