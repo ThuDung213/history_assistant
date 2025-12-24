@@ -1,6 +1,14 @@
-import { Bell, Menu, Search, UserCircle } from "lucide-react";
+import { Bell, LogOut, Menu, Search, UserCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function Topbar({ onToggleSidebar }) {
+export default function Topbar({ onToggleSidebar = () => {} }) {
+    const navigate = useNavigate();
+
+    const handleAdminLogout = () => {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login", { replace: true });
+    };
+
     return (
         <header className="flex-shrink-0 h-16 bg-white shadow-md border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between px-6">
             {/* Thanh Tìm kiếm */}
@@ -28,6 +36,16 @@ export default function Topbar({ onToggleSidebar }) {
                 <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500 relative transition duration-150">
                     <Bell className="w-5 h-5" />
                     <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500"></span>
+                </button>
+
+                {/* Đăng xuất */}
+                <button
+                    type="button"
+                    onClick={handleAdminLogout}
+                    className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition duration-150"
+                    aria-label="Đăng xuất"
+                >
+                    <LogOut className="w-5 h-5" />
                 </button>
 
                 {/* Hồ sơ Người dùng */}

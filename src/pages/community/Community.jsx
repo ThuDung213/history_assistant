@@ -19,6 +19,8 @@ import {
   likeOrUnlikePost,
   listComments,
   listPosts,
+  listMyPosts,
+  reportPost,
   updateComment,
   updatePost,
   uploadImages,
@@ -33,6 +35,20 @@ const CommunityPage = () => {
   const [posts, setPosts] = useState([]); // items từ BE
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const REPORT_REASONS = useMemo(
+    () => [
+      { value: 'spam', label: 'Spam / quảng cáo' },
+      { value: 'misinfo', label: 'Thông tin sai lệch' },
+      { value: 'harassment', label: 'Quấy rối / công kích' },
+      { value: 'adult', label: 'Nội dung phản cảm' },
+      { value: 'copyright', label: 'Vi phạm bản quyền' },
+      { value: 'other', label: 'Khác' },
+    ],
+    []
+  );
+
+  const [feedMode, setFeedMode] = useState('all'); // 'all' | 'mine'
 
   const [composerContent, setComposerContent] = useState('');
   const [commentDrafts, setCommentDrafts] = useState({}); // { [postId]: text }
@@ -52,6 +68,46 @@ const CommunityPage = () => {
   const [menuOpenPostId, setMenuOpenPostId] = useState(null);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editDraft, setEditDraft] = useState('');
+
+  const [reportOpenPostId, setReportOpenPostId] = useState(null);
+  const [reportDrafts, setReportDrafts] = useState({}); // { [postId]: { reason: string, note: string } }
+  const [reportedByMe, setReportedByMe] = useState({}); // { [postId]: true }
+
+  const getReporterId = () => {
+    const u = getCurrentUser();
+    const id = u?.id;
+    return typeof id === 'string' || typeof id === 'number' ? String(id) : null;
+  };
+
+  const getReportStorageKey = (reporterId) => `ha_reported_posts:${reporterId}`;
+
+  const loadReportedByMe = () => {
+    const reporterId = getReporterId();
+    if (!reporterId) return {};
+    try {
+      const raw = window.localStorage.getItem(getReportStorageKey(reporterId));
+      const arr = raw ? JSON.parse(raw) : [];
+      const next = {};
+      (Array.isArray(arr) ? arr : []).forEach((id) => {
+        if (id === null || id === undefined) return;
+        next[String(id)] = true;
+      });
+      return next;
+    } catch {
+      return {};
+    }
+  };
+
+  const persistReportedByMe = (nextMap) => {
+    const reporterId = getReporterId();
+    if (!reporterId) return;
+    try {
+      const ids = Object.keys(nextMap || {}).filter((k) => !!nextMap?.[k]);
+      window.localStorage.setItem(getReportStorageKey(reporterId), JSON.stringify(ids));
+    } catch {
+      // ignore
+    }
+  };
 
   const editPostFileInputRef = useRef(null);
   const [editPostKeptImages, setEditPostKeptImages] = useState([]); // existing images kept during edit
@@ -123,13 +179,90 @@ const CommunityPage = () => {
     setLoading(true);
     setError('');
     try {
-      const items = await listPosts({ limit: 20, signal });
+      const items =
+        feedMode === 'mine'
+          ? await listMyPosts({ limit: 20, signal })
+          : await listPosts({ limit: 20, signal });
       setPosts(items);
+      setReportedByMe(loadReportedByMe());
     } catch (e) {
       if (e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED') return;
       setError(e?.response?.data?.detail || 'Không tải được bài viết (có thể bạn chưa đăng nhập).');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openReport = (postId) => {
+    const reporterId = getReporterId();
+    if (!reporterId) {
+      window.alert('Bạn cần đăng nhập để báo cáo bài viết.');
+      return;
+    }
+
+    const pid = String(postId);
+    if (reportedByMe?.[pid]) {
+      window.alert('Bạn đã báo cáo bài viết này rồi.');
+      return;
+    }
+
+    setReportDrafts((s) => ({
+      ...s,
+      [pid]: s?.[pid] || { reason: '', note: '' },
+    }));
+    setReportOpenPostId(pid);
+  };
+
+  const closeReport = () => {
+    setReportOpenPostId(null);
+  };
+
+  const submitReport = async (postId) => {
+    const reporterId = getReporterId();
+    if (!reporterId) {
+      window.alert('Bạn cần đăng nhập để báo cáo bài viết.');
+      return;
+    }
+
+    const pid = String(postId);
+    if (reportedByMe?.[pid]) {
+      window.alert('Bạn đã báo cáo bài viết này rồi.');
+      return;
+    }
+
+    const draft = reportDrafts?.[pid] || { reason: '', note: '' };
+    const reason = (draft.reason || '').trim();
+    const note = (draft.note || '').trim();
+
+    if (!reason) {
+      window.alert('Vui lòng chọn lý do báo cáo.');
+      return;
+    }
+    if (reason === 'other' && !note) {
+      window.alert('Vui lòng nhập mô tả cho mục “Khác”.');
+      return;
+    }
+
+    const busyKey = `reportPost:${pid}`;
+    setBusyKey(busyKey, true);
+    try {
+      await reportPost(pid, { reason, note: note || undefined });
+      setReportedByMe((cur) => {
+        const next = { ...(cur || {}), [pid]: true };
+        persistReportedByMe(next);
+        return next;
+      });
+      window.alert('Đã gửi báo cáo. Cảm ơn bạn!');
+      setMenuOpenPostId(null);
+      setReportOpenPostId(null);
+    } catch (e) {
+      const msg =
+        (typeof e?.detail === 'string' && e.detail) ||
+        (typeof e?.message === 'string' && e.message) ||
+        'Không gửi được báo cáo. Vui lòng thử lại.';
+      window.alert(msg);
+    } finally {
+      setBusyKey(busyKey, false);
     }
   };
 
@@ -188,7 +321,7 @@ const CommunityPage = () => {
     const controller = new AbortController();
     loadPosts(controller.signal);
     return () => controller.abort();
-  }, []);
+  }, [feedMode]);
 
   const handleCreatePost = async () => {
     if (!canPost) return;
@@ -230,6 +363,10 @@ const CommunityPage = () => {
             likes: 0,
             commentCount: 0,
             isLiked: false,
+            status: 'pending',
+            flags: [],
+            moderationFeedback: null,
+            rejectedReason: null,
           },
           ...cur,
         ]);
@@ -1312,7 +1449,26 @@ const CommunityPage = () => {
     <div className="container">
       <header className="page-header">
         <h1 className="brand-title">Thiên Hạ Luận Đàm</h1>
-        <span className="brand-subtitle">Nơi tao nhân mặc khách hội ngộ</span>
+        <div className="brand-subtitle">Nơi tao nhân mặc khách hội ngộ</div>
+
+        <div className="ha-feed-tabs" role="tablist" aria-label="Chế độ hiển thị bài viết">
+          <button
+            type="button"
+            className={`ha-feed-tab ${feedMode === 'all' ? 'is-active' : ''}`}
+            onClick={() => setFeedMode('all')}
+            aria-selected={feedMode === 'all'}
+          >
+            Tất cả
+          </button>
+          <button
+            type="button"
+            className={`ha-feed-tab ${feedMode === 'mine' ? 'is-active' : ''}`}
+            onClick={() => setFeedMode('mine')}
+            aria-selected={feedMode === 'mine'}
+          >
+            Bài của tôi
+          </button>
+        </div>
       </header>
 
       {error && (
@@ -1387,7 +1543,7 @@ const CommunityPage = () => {
           </div>
 
           <button className="btn-seal" onClick={handleCreatePost} disabled={!canPost || !!busy.createPost || !!busy.uploadImages}>
-            <Send size={16} /> {busy.createPost || busy.uploadImages ? 'Đang đăng…' : 'Đăng Bài'}
+            <Send size={16} /> {busy.createPost || busy.uploadImages ? 'Đang gửi…' : 'Gửi Bài'}
           </button>
         </div>
       </div>
@@ -1406,47 +1562,161 @@ const CommunityPage = () => {
                 : false;
             const isEditing = editingPostId === post.id;
 
+            const myStatus = (post.status || '').toLowerCase();
+            const showModeration = isOwner && myStatus && myStatus !== 'approved';
+            const publishedTime =
+              myStatus === 'approved'
+                ? post.approvedAt || post.publishedAt || post.moderatedAt || post.createdAt
+                : post.createdAt;
+            const statusLabel =
+              myStatus === 'pending'
+                ? 'Chờ duyệt'
+                : myStatus === 'need_edit'
+                  ? 'Cần chỉnh sửa'
+                  : myStatus === 'rejected'
+                    ? 'Từ chối'
+                    : myStatus;
+
             return (
               <article key={post.id} className="post-card">
                 <div className="post-header">
                   <img src={post.avatar} alt={post.author} className="avatar" style={{ width: 40, height: 40 }} />
                   <div style={{ flex: 1 }}>
-                    <div className="author-name">{post.author}</div>
-                    <div className="post-meta">{timeAgo(post.createdAt)}</div>
-                  </div>
-                  {isOwner && (
-                    <div className="post-menu">
-                      <button
-                        className="post-menu-trigger"
-                        type="button"
-                        onClick={() => setMenuOpenPostId((cur) => (cur === post.id ? null : post.id))}
-                        aria-label="Post menu"
-                      >
-                        <MoreHorizontal size={20} />
-                      </button>
-
-                      {menuOpenPostId === post.id && (
-                        <div className="post-menu-dropdown" role="menu">
-                          <button
-                            type="button"
-                            className="post-menu-item"
-                            onClick={() => startEditPost(post)}
-                            disabled={!!busy[`updatePost:${post.id}`] || !!busy[`deletePost:${post.id}`]}
-                          >
-                            Sửa bài
-                          </button>
-                          <button
-                            type="button"
-                            className="post-menu-item danger"
-                            onClick={() => handleDeletePost(post.id)}
-                            disabled={!!busy[`deletePost:${post.id}`]}
-                          >
-                            Xóa bài
-                          </button>
-                        </div>
+                    <div className="author-name">
+                      {post.author}
+                      {showModeration && (
+                        <span className={`ha-status-badge ha-status-${myStatus}`}>{statusLabel}</span>
                       )}
                     </div>
-                  )}
+                    <div className="post-meta">{timeAgo(publishedTime)}</div>
+
+                    {showModeration && myStatus === 'need_edit' && post.moderationFeedback ? (
+                      <div className="ha-moderation-note">
+                        <div className="ha-moderation-title">Góp ý từ admin</div>
+                        <div className="ha-moderation-text">{post.moderationFeedback}</div>
+                      </div>
+                    ) : null}
+
+                    {showModeration && myStatus === 'rejected' && post.rejectedReason ? (
+                      <div className="ha-moderation-note ha-moderation-note--rejected">
+                        <div className="ha-moderation-title">Lý do từ chối</div>
+                        <div className="ha-moderation-text">{post.rejectedReason}</div>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="post-menu">
+                    <button
+                      className="post-menu-trigger"
+                      type="button"
+                      onClick={() => {
+                        const pid = String(post.id);
+                        setMenuOpenPostId((cur) => (String(cur) === pid ? null : pid));
+                        setReportOpenPostId(null);
+                      }}
+                      aria-label="Post menu"
+                    >
+                      <MoreHorizontal size={20} />
+                    </button>
+
+                    {String(menuOpenPostId) === String(post.id) && (
+                      <div className="post-menu-dropdown" role="menu">
+                        {isOwner ? (
+                          <>
+                            <button
+                              type="button"
+                              className="post-menu-item"
+                              onClick={() => startEditPost(post)}
+                              disabled={!!busy[`updatePost:${post.id}`] || !!busy[`deletePost:${post.id}`]}
+                            >
+                              Sửa bài
+                            </button>
+                            <button
+                              type="button"
+                              className="post-menu-item danger"
+                              onClick={() => handleDeletePost(post.id)}
+                              disabled={!!busy[`deletePost:${post.id}`]}
+                            >
+                              Xóa bài
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="post-menu-item"
+                              onClick={() => openReport(post.id)}
+                              disabled={!!busy[`reportPost:${post.id}`] || !!reportedByMe?.[String(post.id)]}
+                            >
+                              {reportedByMe?.[String(post.id)] ? 'Đã báo cáo' : 'Báo cáo'}
+                            </button>
+
+                            {String(reportOpenPostId) === String(post.id) && !reportedByMe?.[String(post.id)] ? (
+                              <div className="post-report-panel">
+                                <select
+                                  className="post-report-select"
+                                  value={reportDrafts?.[String(post.id)]?.reason || ''}
+                                  onChange={(e) =>
+                                    setReportDrafts((s) => ({
+                                      ...s,
+                                      [String(post.id)]: {
+                                        reason: e.target.value,
+                                        note: s?.[String(post.id)]?.note || '',
+                                      },
+                                    }))
+                                  }
+                                >
+                                  <option value="">Chọn…</option>
+                                  {REPORT_REASONS.map((r) => (
+                                    <option key={r.value} value={r.value}>
+                                      {r.label}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                <div className="post-report-label" style={{ marginTop: 10 }}>
+                                  Ghi chú (tuỳ chọn)
+                                </div>
+                                <textarea
+                                  className="post-report-textarea"
+                                  rows={3}
+                                  value={reportDrafts?.[String(post.id)]?.note || ''}
+                                  onChange={(e) =>
+                                    setReportDrafts((s) => ({
+                                      ...s,
+                                      [String(post.id)]: {
+                                        reason: s?.[String(post.id)]?.reason || '',
+                                        note: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  placeholder="Mô tả thêm (nếu cần)…"
+                                />
+
+                                <div className="post-report-actions">
+                                  <button
+                                    type="button"
+                                    className="post-edit-btn"
+                                    onClick={closeReport}
+                                    disabled={!!busy[`reportPost:${post.id}`]}
+                                  >
+                                    Huỷ
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="post-edit-btn primary"
+                                    onClick={() => submitReport(post.id)}
+                                    disabled={!!busy[`reportPost:${post.id}`]}
+                                  >
+                                    Gửi
+                                  </button>
+                                </div>
+                              </div>
+                            ) : null}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {isEditing ? (
@@ -1567,39 +1837,120 @@ const CommunityPage = () => {
                         <div className="author-name">{activePost.author}</div>
                         <div className="post-meta">{timeAgo(activePost.createdAt)}</div>
                       </div>
-                      {isOwner && (
-                        <div className="post-menu">
-                          <button
-                            className="post-menu-trigger"
-                            type="button"
-                            onClick={() => setMenuOpenPostId((cur) => (cur === activePost.id ? null : activePost.id))}
-                            aria-label="Post menu"
-                          >
-                            <MoreHorizontal size={20} />
-                          </button>
+                      <div className="post-menu">
+                        <button
+                          className="post-menu-trigger"
+                          type="button"
+                          onClick={() => {
+                            const pid = String(activePost.id);
+                            setMenuOpenPostId((cur) => (String(cur) === pid ? null : pid));
+                            setReportOpenPostId(null);
+                          }}
+                          aria-label="Post menu"
+                        >
+                          <MoreHorizontal size={20} />
+                        </button>
 
-                          {menuOpenPostId === activePost.id && (
-                            <div className="post-menu-dropdown" role="menu">
-                              <button
-                                type="button"
-                                className="post-menu-item"
-                                onClick={() => startEditPost(activePost)}
-                                disabled={!!busy[`updatePost:${activePost.id}`] || !!busy[`deletePost:${activePost.id}`]}
-                              >
-                                Sửa bài
-                              </button>
-                              <button
-                                type="button"
-                                className="post-menu-item danger"
-                                onClick={() => handleDeletePost(activePost.id)}
-                                disabled={!!busy[`deletePost:${activePost.id}`]}
-                              >
-                                Xóa bài
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        {String(menuOpenPostId) === String(activePost.id) && (
+                          <div className="post-menu-dropdown" role="menu">
+                            {isOwner ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="post-menu-item"
+                                  onClick={() => startEditPost(activePost)}
+                                  disabled={!!busy[`updatePost:${activePost.id}`] || !!busy[`deletePost:${activePost.id}`]}
+                                >
+                                  Sửa bài
+                                </button>
+                                <button
+                                  type="button"
+                                  className="post-menu-item danger"
+                                  onClick={() => handleDeletePost(activePost.id)}
+                                  disabled={!!busy[`deletePost:${activePost.id}`]}
+                                >
+                                  Xóa bài
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="post-menu-item"
+                                  onClick={() => openReport(activePost.id)}
+                                  disabled={!!busy[`reportPost:${activePost.id}`] || !!reportedByMe?.[String(activePost.id)]}
+                                >
+                                  {reportedByMe?.[String(activePost.id)] ? 'Đã báo cáo' : 'Báo cáo'}
+                                </button>
+
+                                {String(reportOpenPostId) === String(activePost.id) && !reportedByMe?.[String(activePost.id)] ? (
+                                  <div className="post-report-panel">
+                                    <div className="post-report-label">Lý do</div>
+                                    <select
+                                      className="post-report-select"
+                                      value={reportDrafts?.[String(activePost.id)]?.reason || ''}
+                                      onChange={(e) =>
+                                        setReportDrafts((s) => ({
+                                          ...s,
+                                          [String(activePost.id)]: {
+                                            reason: e.target.value,
+                                            note: s?.[String(activePost.id)]?.note || '',
+                                          },
+                                        }))
+                                      }
+                                    >
+                                      <option value="">Chọn…</option>
+                                      {REPORT_REASONS.map((r) => (
+                                        <option key={r.value} value={r.value}>
+                                          {r.label}
+                                        </option>
+                                      ))}
+                                    </select>
+
+                                    <div className="post-report-label" style={{ marginTop: 10 }}>
+                                      Ghi chú (tuỳ chọn)
+                                    </div>
+                                    <textarea
+                                      className="post-report-textarea"
+                                      rows={3}
+                                      value={reportDrafts?.[String(activePost.id)]?.note || ''}
+                                      onChange={(e) =>
+                                        setReportDrafts((s) => ({
+                                          ...s,
+                                          [String(activePost.id)]: {
+                                            reason: s?.[String(activePost.id)]?.reason || '',
+                                            note: e.target.value,
+                                          },
+                                        }))
+                                      }
+                                      placeholder="Mô tả thêm (nếu cần)…"
+                                    />
+
+                                    <div className="post-report-actions">
+                                      <button
+                                        type="button"
+                                        className="post-edit-btn"
+                                        onClick={closeReport}
+                                        disabled={!!busy[`reportPost:${activePost.id}`]}
+                                      >
+                                        Huỷ
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="post-edit-btn primary"
+                                        onClick={() => submitReport(activePost.id)}
+                                        disabled={!!busy[`reportPost:${activePost.id}`]}
+                                      >
+                                        Gửi
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : null}
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {isEditing ? (

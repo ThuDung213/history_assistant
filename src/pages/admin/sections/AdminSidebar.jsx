@@ -9,18 +9,29 @@ import {
     ChevronLeft,
     ChevronRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // ====== MENU CONFIG (DÙNG URL, KHÔNG DÙNG KEY) ======
 const navItems = [
     {
         name: "Thống kê",
         icon: LayoutDashboard,
-        to: "/admin",
+        to: "/admin/dashboard",
     },
     {
         name: "Quản lý địa điểm",
         icon: FolderOpen,
         to: "/admin/locations",
+    },
+    {
+        name: "Kiểm duyệt bài viết",
+        icon: FolderOpen,
+        to: "/admin/posts/moderation",
+    },
+    {
+        name: "Báo cáo vi phạm",
+        icon: FolderOpen,
+        to: "/admin/posts/reports",
     },
 ];
 
@@ -29,12 +40,6 @@ const bottomItems = [
         name: "Cài đặt",
         icon: Settings,
         to: "/admin/settings",
-    },
-    {
-        name: "Đăng xuất",
-        icon: LogOut,
-        to: "/logout",
-        className: "text-red-500",
     },
 ];
 
@@ -57,7 +62,7 @@ const NavItem = ({ item, isCollapsed }) => {
       `
             }
         >
-            <IconComponent className="w-5 h-5 flex-shrink-0" />
+            <IconComponent className="w-5 h-5 shrink-0" />
             {!isCollapsed && <span className="ml-3">{item.name}</span>}
         </RouterNavLink>
     );
@@ -65,7 +70,13 @@ const NavItem = ({ item, isCollapsed }) => {
 
 // ====== SIDEBAR ======
 export default function Sidebar() {
+    const navigate = useNavigate();
     const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const handleAdminLogout = () => {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login", { replace: true });
+    };
 
     // Tự động thu gọn trên desktop
     useEffect(() => {
@@ -105,7 +116,7 @@ export default function Sidebar() {
             >
                 {!isCollapsed && (
                     <div className="flex items-center overflow-hidden">
-                        <Gem className="w-7 h-7 text-indigo-600 flex-shrink-0" />
+                        <Gem className="w-7 h-7 text-indigo-600 shrink-0" />
                         <h1 className="text-xl font-extrabold text-gray-800 ml-2 whitespace-nowrap">
                             Ứng dụng React
                         </h1>
@@ -122,7 +133,7 @@ export default function Sidebar() {
             </div>
 
             {/* ===== MAIN NAV ===== */}
-            <nav className="space-y-3 flex-grow">
+            <nav className="space-y-3 grow">
                 {navItems.map((item) => (
                     <NavItem key={item.to} item={item} isCollapsed={isCollapsed} />
                 ))}
@@ -133,6 +144,16 @@ export default function Sidebar() {
                 {bottomItems.map((item) => (
                     <NavItem key={item.to} item={item} isCollapsed={isCollapsed} />
                 ))}
+
+                <button
+                    type="button"
+                    onClick={handleAdminLogout}
+                    className={`flex items-center p-3 rounded-lg transition-all w-full text-red-500 hover:bg-red-50`}
+                    aria-label="Đăng xuất"
+                >
+                    <LogOut className="w-5 h-5 shrink-0" />
+                    {!isCollapsed && <span className="ml-3">Đăng xuất</span>}
+                </button>
             </div>
         </aside>
     );

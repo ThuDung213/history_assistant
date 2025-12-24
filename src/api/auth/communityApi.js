@@ -16,6 +16,10 @@ const communityApi = {
     return axiosClient.get(`${URL_PREFIX}/posts`, { params, ...options });
   },
 
+  listMyPosts(params = {}, options = {}) {
+    return axiosClient.get(`${URL_PREFIX}/posts/mine`, { params, ...options });
+  },
+
   createPost(data) {
     return axiosClient.post(`${URL_PREFIX}/posts`, data);
   },
@@ -34,6 +38,11 @@ const communityApi = {
 
   unlikePost(postId) {
     return axiosClient.delete(`${URL_PREFIX}/posts/${postId}/like`);
+  },
+
+  // User report / flag a post for moderation
+  reportPost(postId, data) {
+    return axiosClient.post(`${URL_PREFIX}/posts/${postId}/report`, data);
   },
 
   listComments(postId, params = {}, options = {}) {

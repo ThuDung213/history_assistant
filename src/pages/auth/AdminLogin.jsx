@@ -23,6 +23,8 @@ export default function AdminLogin() {
         e.preventDefault();
         setError("");
 
+        setIsLoading(true);
+
         try {
             const data = await adminLogin(email, password);
 
@@ -33,12 +35,14 @@ export default function AdminLogin() {
             navigate("/admin/dashboard");
         } catch (err) {
             setError(err.detail || "Login failed");
+        } finally {
+            setIsLoading(false);
         }
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-800 flex items-center justify-center p-4 sm:p-6 font-sans">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-3xl p-8 sm:p-10 transform transition-all duration-500 hover:scale-105">
+        <div className="min-h-screen bg-linear-to-br from-indigo-600 to-purple-800 flex items-center justify-center p-4 sm:p-6 font-sans">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 sm:p-10 transform transition-all duration-500 hover:scale-105">
 
                 {/* Header Section */}
                 <div className="text-center mb-10 animate-fade-in">
@@ -60,7 +64,7 @@ export default function AdminLogin() {
                     )}
 
                     {/* Email Input */}
-                    <div className="animate-fade-in-up delay-100">
+                    <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                         <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                             Email
                         </label>
@@ -78,7 +82,7 @@ export default function AdminLogin() {
                     </div>
 
                     {/* Password Input */}
-                    <div className="animate-fade-in-up delay-200">
+                    <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                         <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                             Mật khẩu
                         </label>
@@ -102,7 +106,7 @@ export default function AdminLogin() {
                         className={`w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-lg shadow-lg text-lg font-bold text-white transition-all duration-300 ease-in-out transform
                             ${isLoading
                                 ? 'bg-indigo-400 cursor-not-allowed'
-                                : 'bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-3 focus:ring-offset-2 focus:ring-indigo-500 hover:-translate-y-1 hover:shadow-xl'}`
+                                : 'bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:-translate-y-1 hover:shadow-xl'}`
                         }
                     >
                         {isLoading ? (
@@ -113,13 +117,13 @@ export default function AdminLogin() {
                     </button>
                 </form>
 
-                {/* Footer Link */}
-                <p className="mt-8 text-center text-sm text-gray-500 animate-fade-in delay-300">
+                {/* Footer Link
+                <p className="mt-8 text-center text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '300ms' }}>
                     Bạn gặp khó khăn khi đăng nhập? {" "}
                     <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-800 transition-colors duration-200">
                         Liên hệ hỗ trợ
                     </a>
-                </p>
+                </p> */}
             </div>
         </div>
     );
