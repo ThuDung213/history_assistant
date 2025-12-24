@@ -134,7 +134,6 @@ export function Avatar({ animation, setAnimation, speakingText, ...props }) {
 
   return (
     <group {...props} dispose={null} ref={group}>
-       {/* Giữ nguyên phần render meshes của bạn */}
       <primitive object={nodes.Hips} />
       <skinnedMesh geometry={nodes.Wolf3D_Hair.geometry} material={materials.Wolf3D_Hair} skeleton={nodes.Wolf3D_Hair.skeleton} />
       <skinnedMesh geometry={nodes.Wolf3D_Outfit_Top.geometry} material={materials.Wolf3D_Outfit_Top} skeleton={nodes.Wolf3D_Outfit_Top.skeleton} />

@@ -13,7 +13,7 @@ export default function HomePageContent() {
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Card elevation={4}>
                         <CardContent>
                             <Typography variant="h6">🗺️ Tổng số địa điểm</Typography>
@@ -24,7 +24,7 @@ export default function HomePageContent() {
                     </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Card elevation={4}>
                         <CardContent>
                             <Typography variant="h6">📚 Sự kiện lịch sử</Typography>
@@ -35,7 +35,7 @@ export default function HomePageContent() {
                     </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Card elevation={4}>
                         <CardContent>
                             <Typography variant="h6">🤖 AI Requests (Today)</Typography>

@@ -1,160 +1,174 @@
-import React from "react";
-import {
-    Box, Card, CardContent, Typography, List, ListItem,
-    CircularProgress, TextField, Button
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import SendIcon from "@mui/icons-material/Send";
-import BookIcon from "@mui/icons-material/Book";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Landmark, Loader, Send } from "lucide-react";
+import { askAgent } from "../../../api/agentAPI";
+import { SourceAttribution } from "../../../components/Admin/SourceAttribution";
 
-// Dữ liệu giả lập tĩnh để hiển thị giao diện người dùng
-const placeholderHistory = [
-    {
-        type: "user",
-        text: "Bạn có thể tóm tắt lịch sử phát triển của React và các tính năng chính của nó không?",
-        sources: [],
-    },
-    {
-        type: "ai",
-        text: "React, một thư viện JavaScript để xây dựng giao diện người dùng, được Facebook ra mắt lần đầu vào năm 2013. Nó nổi tiếng với việc sử dụng Virtual DOM (V-DOM) để tối ưu hóa hiệu suất và mô hình component-based (dựa trên các thành phần) cho phép tái sử dụng code cao.",
-        sources: [
-            { title: "React Official Documentation", uri: "https://react.dev" },
-            { title: "The History of ReactJS", uri: "https://example.com/history" },
-        ],
-    },
-];
 
-/**
- * --- COMPONENT (CHỈ CÓ UI) ---
- * Tất cả props, hooks, và logic đã được loại bỏ.
- * Sử dụng dữ liệu tĩnh để mô phỏng lịch sử trò chuyện và trạng thái tải.
- */
-export default function ChatbotSidebar() {
+export default function Chatbot() {
+    const [messages, setMessages] = useState([
+        { role: 'assistant', text: 'Chào bạn! Tôi là trợ lý AI. Tôi có thể giúp bạn tìm kiếm thông tin lịch sử hoặc hỗ trợ nhập liệu. Bạn cần tôi giúp gì?' }
+    ]);
+    const [input, setInput] = useState('');
+    const [response, setResponse] = useState('')
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef(null);
+
+    // Cuộn xuống tin nhắn cuối cùng
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(scrollToBottom, [messages]);
+
+    // Hàm gửi tin nhắn
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage = input.trim();
+
+        // Thêm tin nhắn người dùng
+        setMessages(prev => [...prev, { role: "user", text: userMessage }]);
+        setInput("");
+        setIsLoading(true);
+
+        try {
+            const agentResponse = await askAgent(userMessage);
+
+            // Ép kiểu trả về dạng text
+            const answer = agentResponse.answer;
+            const sources = agentResponse.sources || [];
+
+            // Thêm tin nhắn AI
+            setMessages(prev => [...prev, { role: "assistant", text: answer, sources: sources }]);
+
+        } catch (error) {
+            setMessages(prev => [
+                ...prev,
+                { role: "assistant", text: "❌ Lỗi khi gọi API. Vui lòng thử lại." }
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+    // Hàm render tin nhắn (sử dụng Markdown cơ bản)
+    const renderMessageContent = useCallback((message) => {
+
+        const { text, role, sources } = message;
+
+        // Tách para theo ký tự xuống dòng
+        const paragraphs = text.split('\n').map((line, index) => {
+            if (!line.trim()) return <br key={index} />;
+
+            let content = line.split(/(\*\*.*?\*\*)/).map((segment, segIndex) => {
+                if (segment.startsWith('**') && segment.endsWith('**')) {
+                    return <span key={segIndex} className="font-semibold">{segment.slice(2, -2)}</span>;
+                }
+                return segment;
+            });
+
+            // Xử lý list item giả lập
+            if (line.startsWith('- ') || line.startsWith('* ')) {
+                // Loại bỏ tiền tố list item khỏi mảng nội dung
+                if (content.length > 0 && typeof content[0] === 'string') {
+                    const prefix = line.startsWith('- ') ? '- ' : '* ';
+                    content[0] = content[0].substring(prefix.length);
+                }
+                return (
+                    // Căn chỉnh nội dung list item
+                    <div key={index} className="flex items-start pl-4 mb-1 text-sm">
+                        <span className="mr-2 text-current">&bull;</span>
+                        <p className="inline">{content}</p>
+                    </div>
+                );
+            }
+            return (
+                <p key={index} className="mb-1 text-sm">
+                    {content}
+                </p>
+            );
+        })
+        // Xử lý nguồn tham khảo
+        if (role === "assistant") {
+            return (
+                <div className="flex flex-col">
+                    {paragraphs}
+                    {/* source link */}
+                    {sources && sources.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-600 flex items-center justify-end text-gray-400">
+                            <span className="text-xs italic mr-2">Nguồn tham khảo</span>
+                            <div className="">
+                                <SourceAttribution sources={sources} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        return paragraphs;
+    });
+
+
     return (
-        <Card
-            elevation={5}
-            sx={{
-                height: "calc(100vh - 120px)",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: 2,
-                overflow: "hidden",
-                bgcolor: "#f7f9fc",
-            }}
-        >
-            <CardContent
-                sx={{
-                    bgcolor: "#1976d2",
-                    color: "white",
-                    py: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                }}
-            >
-                <SearchIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">AI Websearch Assistant</Typography>
-            </CardContent>
+        <div className="flex flex-col h-full bg-white rounded-xl shadow-2xl border-t-4 border-indigo-500 overflow-hidden">
 
-            {/* CHAT HISTORY (Sử dụng dữ liệu giả lập) */}
-            <Box sx={{ flexGrow: 1, overflowY: "auto", p: 2 }}>
-                {placeholderHistory.map((msg, idx) => (
-                    <Box
-                        key={idx}
-                        sx={{
-                            display: "flex",
-                            justifyContent: msg.type === "user" ? "flex-end" : "flex-start",
-                            mb: 1,
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                maxWidth: "90%",
-                                p: 1.5,
-                                borderRadius: 3,
-                                bgcolor: msg.type === "user" ? "#1976d2" : "white",
-                                color: msg.type === "user" ? "white" : "black",
-                            }}
-                        >
-                            <Typography
-                                sx={{ whiteSpace: "pre-wrap" }}
-                                // Hardcoding innerHTML for illustration purposes only
-                                dangerouslySetInnerHTML={{
-                                    __html: msg.text.replace(/\n/g, "<br/>"),
-                                }}
-                            />
+            {/* Header Chat */}
+            <div className="flex items-center p-4 border-b border-gray-200 bg-indigo-50">
+                <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center mr-3">
+                    <Landmark className="w-5 h-5 text-white" />
+                </div>
+                <h4 className="font-bold text-gray-800">Trợ Lý Lịch Sử AI</h4>
+            </div>
 
-                            {/* citations */}
-                            {msg.sources.length > 0 && (
-                                <Box sx={{ mt: 1 }}>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            fontWeight: 600,
-                                            mb: 0.5,
-                                        }}
-                                    >
-                                        <BookIcon fontSize="small" sx={{ mr: 0.5 }} /> Nguồn:
-                                    </Typography>
-
-                                    <List dense>
-                                        {msg.sources.map((s, i) => (
-                                            <ListItem key={i} sx={{ p: 0 }}>
-                                                <a
-                                                    href={s.uri}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{ fontSize: 12, color: "#1976d2" }}
-                                                >
-                                                    {s.title}
-                                                </a>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </Box>
-                            )}
-                        </Box>
-                    </Box>
+            {/* Vùng Tin Nhắn */}
+            <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50">
+                {messages.map((msg, index) => (
+                    <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-xs sm:max-w-md p-3 rounded-xl shadow-sm ${msg.role === 'user'
+                            ? 'bg-indigo-500 text-white rounded-br-none'
+                            : 'bg-gray-200 text-gray-800 rounded-tl-none'
+                            }`}>
+                            {renderMessageContent(msg)}
+                        </div>
+                    </div>
                 ))}
 
-                {/* Giả lập trạng thái tải */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography>Đang xử lý...</Typography>
-                </Box>
+                {/* Loading Indicator */}
+                {isLoading && (
+                    <div className="flex justify-start">
+                        <div className="p-3 rounded-xl bg-gray-200 text-gray-600 flex items-center">
+                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                            <span>Trợ lý đang phản hồi...</span>
+                        </div>
+                    </div>
+                )}
+                <div ref={messagesEndRef} />
+            </div>
 
-                {/* Loại bỏ div ref */}
-            </Box>
-
-            {/* INPUT (Loại bỏ onSubmit) */}
-            <Box
-                component="div" // Thay thế component="form"
-                sx={{
-                    p: 2,
-                    borderTop: "1px solid #ddd",
-                    bgcolor: "white",
-                }}
-            >
-                <Box sx={{ display: "flex", gap: 1 }}>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        defaultValue="Câu hỏi giả lập..." // Dữ liệu tĩnh
-                        placeholder="Hỏi AI..."
-                        disabled={false} // Luôn bật hoặc tắt để minh họa
+            {/* Input Footer */}
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white">
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Hỏi tôi về lịch sử, kiến trúc..."
+                        disabled={isLoading}
+                        className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm disabled:bg-gray-100"
                     />
-
-                    <Button
-                        type="button" // Thay thế type="submit"
-                        variant="contained"
-                        disabled={false} // Luôn bật hoặc tắt để minh họa
-                        sx={{ borderRadius: "50%" }}
+                    <button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        className="p-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+                        aria-label="Gửi tin nhắn"
                     >
-                        <SendIcon />
-                    </Button>
-                </Box>
-            </Box>
-        </Card>
+                        <Send className="w-5 h-5" />
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }
