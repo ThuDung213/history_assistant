@@ -20,6 +20,8 @@ import "./App.css";
 import HomePageContent from "./pages/admin/sections/HomePageContent";
 import VlogPostEditor from "./pages/admin/posts/VlogPostEditor";
 import PostsPage from "./pages/admin/posts/PostsPage";
+import PostModeration from "./pages/admin/sections/PostModeration";
+import PostReports from "./pages/admin/sections/PostReports";
 import GalleryPage from "./pages/gallery/GalleryPage";
 
 const ContentMenu = () => {
@@ -163,6 +165,8 @@ function App() {
             <Route index path="dashboard" element={<HomePageContent />} />
             <Route path="locations" element={<PostsPage />} />
             <Route path="locations/create" element={<VlogPostEditor />} />
+            <Route path="posts/moderation" element={<PostModeration />} />
+            <Route path="posts/reports" element={<PostReports />} />
           </Route>
         </Routes>
       </div>
