@@ -1,0 +1,387 @@
+/* --- Variables & Reset --- */
+.ha-settings-page {
+  /* Brighter parchment background (historic vibe) */
+  --ha-bg: #fbf4e6;
+  --ha-bg-2: #f2e7d1;
+  --ha-pattern-dot: rgba(141, 110, 99, 0.14);
+  --ha-pattern-dot-2: rgba(141, 110, 99, 0.09);
+  --ha-vignette: rgba(44, 30, 26, 0.07);
+  --ha-grain: rgba(44, 30, 26, 0.028);
+
+  --ha-card-bg: rgba(36, 30, 24, 0.95);
+  --ha-accent: #d4af37; /* Gold */
+  --ha-accent-hover: #f9d868;
+  --ha-text-main: #e8dcc0;
+  --ha-text-muted: #a69b85;
+  --ha-border: #5c4d35;
+  --ha-input-bg: #120f0b;
+  --ha-success: #6da36d;
+  --ha-error: #cc5e5e;
+  --ha-font-serif: 'Merriweather', 'Times New Roman', serif;
+  --ha-radius: 8px;
+  --ha-ink: #2c1e1a;
+
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: var(--ha-bg);
+  /* Parchment + subtle dots + faint grain (no image assets) */
+  background-image:
+    radial-gradient(1100px 680px at 50% -12%, rgba(255, 255, 255, 0.72), transparent 58%),
+    radial-gradient(900px 620px at 50% 118%, var(--ha-vignette), transparent 62%),
+    radial-gradient(var(--ha-pattern-dot) 0.9px, transparent 1px),
+    radial-gradient(var(--ha-pattern-dot-2) 0.75px, transparent 0.95px),
+    repeating-linear-gradient(45deg, var(--ha-grain) 0 1px, transparent 1px 8px),
+    linear-gradient(180deg, var(--ha-bg), var(--ha-bg-2));
+  background-size: auto, auto, 28px 28px, 38px 38px, auto, auto;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, no-repeat;
+  background-position: 0 0, 0 0, 0 0, 14px 16px, 0 0, 0 0;
+  color: var(--ha-ink);
+  font-family: var(--ha-font-serif);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* --- Container --- */
+.ha-settings-container {
+  width: 100%;
+  max-width: 900px;
+  animation: ha-fade-in 0.5s ease-out;
+}
+
+/* --- Header --- */
+.ha-settings-header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.ha-settings-title {
+  font-size: 2.2rem;
+  color: var(--ha-accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  border-bottom: 2px solid var(--ha-border);
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+.ha-settings-subtitle {
+  margin-top: 10px;
+  color: var(--ha-text-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* --- Grid Layout --- */
+.ha-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* --- Cards --- */
+.ha-card {
+  background: var(--ha-card-bg);
+  border: 1px solid var(--ha-border);
+  border-radius: var(--ha-radius);
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  position: relative;
+  color: var(--ha-text-main);
+}
+
+.ha-card::after {
+  /* Corner decoration effect */
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px; right: 4px; bottom: 4px;
+  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.ha-card-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: var(--ha-accent);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 10px;
+}
+
+/* --- Avatar Section --- */
+.ha-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ha-avatar-wrapper {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 3px solid var(--ha-accent);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.ha-avatar-wrapper:hover {
+  transform: scale(1.02);
+  border-color: var(--ha-accent-hover);
+}
+
+.ha-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ha-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.ha-avatar-wrapper:hover .ha-avatar-overlay {
+  opacity: 1;
+}
+
+.ha-avatar-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.ha-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: var(--ha-accent);
+  border-radius: 50%;
+  animation: ha-spin 1s linear infinite;
+}
+
+.ha-user-email {
+  font-size: 0.9rem;
+  color: var(--ha-text-muted);
+  font-family: sans-serif;
+}
+
+.ha-btn-mini-save {
+  background: var(--ha-accent);
+  color: #1e1b16;
+  border: none;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+}
+
+.ha-btn-mini-save:hover {
+  background: var(--ha-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* --- Forms & Inputs --- */
+.ha-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ha-border), transparent);
+  margin: 20px 0;
+  width: 100%;
+}
+
+.ha-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ha-label {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--ha-text-muted);
+  margin-left: 4px;
+}
+
+.ha-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.ha-input {
+  flex: 1;
+  background: var(--ha-input-bg);
+  border: 1px solid var(--ha-border);
+  color: var(--ha-text-main);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.ha-input:focus {
+  outline: none;
+  border-color: var(--ha-accent);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+}
+
+.ha-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ha-btn-icon {
+  background: #332b22;
+  border: 1px solid var(--ha-border);
+  color: var(--ha-accent);
+  width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ha-btn-icon:hover:not(:disabled) {
+  background: #443a2e;
+  border-color: var(--ha-accent);
+}
+
+/* --- Password Form --- */
+.ha-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ha-row-field {
+  display: flex;
+  gap: 16px;
+}
+
+.ha-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ha-btn {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--ha-font-serif);
+  margin-top: 10px;
+}
+
+.ha-btn-primary {
+  background: linear-gradient(135deg, var(--ha-accent) 0%, #b8962e 100%);
+  color: #1a160e;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.ha-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.ha-btn-primary:disabled {
+  filter: grayscale(0.8);
+  cursor: not-allowed;
+}
+
+/* --- Messages --- */
+.ha-status-msg {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.ha-status-msg.success {
+  background: rgba(109, 163, 109, 0.15);
+  color: #8bc38b;
+  border: 1px solid rgba(109, 163, 109, 0.3);
+}
+
+.ha-status-msg.error {
+  background: rgba(204, 94, 94, 0.15);
+  color: #e58b8b;
+  border: 1px solid rgba(204, 94, 94, 0.3);
+}
+
+.ha-loading-state {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--ha-text-muted);
+  padding: 40px;
+}
+
+/* --- Animations --- */
+@keyframes ha-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ha-spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-in {
+  animation: ha-fade-in 0.3s ease-out;
+}
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+  .ha-settings-grid {
+    grid-template-columns: 1fr; /* Stack vertically */
+  }
+
+  .ha-settings-title {
+    font-size: 1.8rem;
+  }
+  
+  .ha-row-field {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ha-settings-page {
+    padding: 20px 10px;
+  }
+}

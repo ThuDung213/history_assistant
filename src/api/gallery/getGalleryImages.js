@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 /**
@@ -7,20 +5,40 @@ const API_URL = import.meta.env.VITE_API_URL;
  */
 export const getGalleryImages = async () => {
   try {
-    // Get admin token from localStorage
-    const token = localStorage.getItem("admin_token");
+    // Gallery should be viewable by users.
+    // If backend requires auth, we attach whatever token is available.
+    const token =
+      localStorage.getItem('token') ||
+      localStorage.getItem('access_token') ||
+      localStorage.getItem('ha_token') ||
+      localStorage.getItem('admin_token');
 
-    if (!token) {
-      throw new Error("Admin authentication required. Please login first.");
+    const res = await fetch(`${API_URL}/gallery`, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : undefined,
+    });
+
+    if (!res.ok) {
+      let detail = res.statusText || 'Failed to fetch';
+      try {
+        const data = await res.json();
+        if (data?.detail) detail = data.detail;
+      } catch {
+        // ignore
+      }
+      throw new Error(detail);
     }
 
-    const res = await fetch(`${API_URL}/gallery`);
-    return res.json();
+    return await res.json();
   } catch (error) {
-    throw (
-      error.response?.data || {
-        detail: error.message || "Cannot get gallery image",
-      }
-    );
+    // Normalize to Error for callers (useGallery expects err.message)
+    const message =
+      typeof error?.message === 'string' && error.message
+        ? error.message
+        : 'Cannot get gallery image';
+    throw new Error(message);
   }
 };

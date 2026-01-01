@@ -6,14 +6,14 @@ import {
 } from "lucide-react";
 import { SiteTable } from "../../../components/Admin/post/PostTable";
 import { useEffect, useMemo, useState } from "react";
-import { useLocations } from "../../../hooks/locations/useLocations";
+import { useAdminLocations } from "../../../hooks/locations/useAdminLocations";
 
 export default function PostsPage() {
     const [sites, setSites] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('All');
     const [notification, setNotification] = useState(null);
-    const { locations, loading } = useLocations();
+    const { locations, loading } = useAdminLocations();
 
     useEffect(() => {
         if(!loading && locations) {

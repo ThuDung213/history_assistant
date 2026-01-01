@@ -1,28 +1,44 @@
-import axios from "axios";
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 /**
+ * Public locations list for user-facing Map.
+ * Expected BE: GET /locations (should not require admin auth)
+ *
  * @returns {Promise<import("../../types/location").HistoricalSite[]>}
  */
 export const getLocationsList = async () => {
     try {
-        // Get admin token from localStorage
-        const token = localStorage.getItem("admin_token");
+        const token =
+            localStorage.getItem('token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('ha_token') ||
+            null;
 
-        if (!token) {
-            throw new Error("Admin authentication required. Please login first.");
-        }
-
-        const res = await axios.get(`${API_URL}/admin/locations`, {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            }
+        const res = await fetch(`${API_URL}/locations`, {
+            headers: token
+                ? {
+                        Authorization: `Bearer ${token}`,
+                    }
+                : undefined,
         });
 
-        return res.data;
+        if (!res.ok) {
+            let detail = res.statusText || 'Failed to fetch';
+            try {
+                const data = await res.json();
+                if (data?.detail) detail = data.detail;
+            } catch {
+                // ignore
+            }
+            throw new Error(detail);
+        }
+
+        return await res.json();
     } catch (error) {
-        throw error.response?.data || { detail: error.message || "Create location failed" };
+        const message =
+            typeof error?.message === 'string' && error.message
+                ? error.message
+                : 'Cannot get locations';
+        throw new Error(message);
     }
 };
