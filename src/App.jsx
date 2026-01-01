@@ -23,6 +23,7 @@ import PostsPage from "./pages/admin/posts/PostsPage";
 import PostModeration from "./pages/admin/sections/PostModeration";
 import PostReports from "./pages/admin/sections/PostReports";
 import GalleryPage from "./pages/gallery/GalleryPage";
+import SettingsPage from "./pages/settings/SettingsPage";
 
 const ContentMenu = () => {
   const location = useLocation();
@@ -108,6 +109,15 @@ const ContentMenu = () => {
           Thư Viện Ảnh
         </NavLink>
 
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `ha-menuLink ${isActive ? "is-active" : ""}`
+          }
+        >
+          Settings
+        </NavLink>
+
         <div className="ha-menuDivider" />
 
         <button
@@ -150,6 +160,7 @@ function App() {
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
