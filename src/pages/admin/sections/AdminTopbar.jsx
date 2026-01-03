@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, Search, UserCircle } from "lucide-react";
+import { Bell, LogOut, Menu, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Topbar({ onToggleSidebar = () => {} }) {
@@ -10,17 +10,7 @@ export default function Topbar({ onToggleSidebar = () => {} }) {
     };
 
     return (
-        <header className="flex-shrink-0 h-16 bg-white shadow-md border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between px-6">
-            {/* Thanh Tìm kiếm */}
-            <div className="relative flex items-center w-full max-w-lg hidden md:flex">
-                <Search className="absolute left-3 w-5 h-5 text-gray-400" />
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm..."
-                    className="w-full py-2 pl-10 pr-4 border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 text-sm"
-                />
-            </div>
-
+        <header className="flex-shrink-0 h-16 bg-white shadow-md border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between md:justify-end px-6">
             {/* Nút Menu Mobile (chỉ hiện trên mobile) */}
             <button
                 onClick={onToggleSidebar}
@@ -36,16 +26,6 @@ export default function Topbar({ onToggleSidebar = () => {} }) {
                 <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500 relative transition duration-150">
                     <Bell className="w-5 h-5" />
                     <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500"></span>
-                </button>
-
-                {/* Đăng xuất */}
-                <button
-                    type="button"
-                    onClick={handleAdminLogout}
-                    className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition duration-150"
-                    aria-label="Đăng xuất"
-                >
-                    <LogOut className="w-5 h-5" />
                 </button>
 
                 {/* Hồ sơ Người dùng */}

@@ -478,7 +478,15 @@ const CommunityPage = () => {
     const newFiles = (editPostNewImages || []).map((x) => x.file).filter(Boolean);
 
     // optimistic update (content + keep-removed existing images; new uploads will be applied after upload)
-    setPosts((cur) => cur.map((p) => (p.id === postId ? { ...p, content: nextContent, images: keptImages } : p)));
+    // If the post is already approved, editing should send it back to pending (BE should enforce this too).
+    setPosts((cur) =>
+      cur.map((p) => {
+        if (p.id !== postId) return p;
+        const currentStatus = String(p.status || '').toLowerCase();
+        const nextStatus = currentStatus === 'approved' ? 'pending' : p.status;
+        return { ...p, content: nextContent, images: keptImages, status: nextStatus };
+      })
+    );
 
     try {
       let uploadedImages = [];
@@ -497,25 +505,41 @@ const CommunityPage = () => {
       const item = data?.item;
 
       if (item) {
-        setPosts((cur) =>
-          cur.map((p) =>
-            p.id === postId
-              ? {
-                id: item.id ?? p.id,
-                authorId: item.authorId ?? p.authorId ?? null,
-                author: item.author ?? p.author,
-                avatar: item.avatar || p.avatar || avatarFallback(item.author ?? p.author),
-                createdAt: item.createdAt ?? p.createdAt,
-                content: item.content ?? nextContent,
-                link: item.link ?? p.link ?? null,
-                images: Array.isArray(item.images) ? item.images : p.images ?? [],
-                likes: item.likes ?? p.likes ?? 0,
-                commentCount: item.commentCount ?? p.commentCount ?? 0,
-                isLiked: typeof item.isLiked === 'boolean' ? item.isLiked : !!p.isLiked,
-              }
-              : p
-          )
-        );
+        let nextStatusLower = '';
+        setPosts((cur) => {
+          const next = cur.map((p) => {
+            if (p.id !== postId) return p;
+            const merged = {
+              id: item.id ?? p.id,
+              authorId: item.authorId ?? p.authorId ?? null,
+              author: item.author ?? p.author,
+              avatar: item.avatar || p.avatar || avatarFallback(item.author ?? p.author),
+              createdAt: item.createdAt ?? p.createdAt,
+              content: item.content ?? nextContent,
+              link: item.link ?? p.link ?? null,
+              images: Array.isArray(item.images) ? item.images : p.images ?? [],
+              likes: item.likes ?? p.likes ?? 0,
+              commentCount: item.commentCount ?? p.commentCount ?? 0,
+              isLiked: typeof item.isLiked === 'boolean' ? item.isLiked : !!p.isLiked,
+              approvedAt:
+                item.approvedAt ?? item.approved_at ?? item.publishedAt ?? item.published_at ?? p.approvedAt ?? null,
+              moderatedAt: item.moderatedAt ?? item.moderated_at ?? p.moderatedAt ?? null,
+              status: item.status ?? p.status ?? null,
+              flags: Array.isArray(item.flags) ? item.flags : Array.isArray(item.tags) ? item.tags : p.flags ?? [],
+              moderationFeedback:
+                item.moderationFeedback ?? item.moderation_feedback ?? item.feedback ?? p.moderationFeedback ?? null,
+              rejectedReason: item.rejectedReason ?? item.rejected_reason ?? p.rejectedReason ?? null,
+            };
+            nextStatusLower = String(merged.status || '').toLowerCase();
+            return merged;
+          });
+
+          // If the post is no longer approved, it should disappear from the public feed.
+          if (feedMode === 'all' && nextStatusLower && nextStatusLower !== 'approved') {
+            return next.filter((p) => p.id !== postId);
+          }
+          return next;
+        });
       } else {
         loadPosts();
       }
@@ -1810,6 +1834,11 @@ const CommunityPage = () => {
         (() => {
           const activePost = posts.find((p) => p.id === postModalPostId);
           if (!activePost) return null;
+          const activeStatus = String(activePost.status || '').toLowerCase();
+          const activePublishedTime =
+            activeStatus === 'approved'
+              ? activePost.approvedAt || activePost.publishedAt || activePost.moderatedAt || activePost.createdAt
+              : activePost.createdAt;
           const myId = currentUser?.id;
           const authorId = activePost.authorId;
           const isOwner =
@@ -1835,7 +1864,7 @@ const CommunityPage = () => {
                       <img src={activePost.avatar} alt={activePost.author} className="avatar" style={{ width: 40, height: 40 }} />
                       <div style={{ flex: 1 }}>
                         <div className="author-name">{activePost.author}</div>
-                        <div className="post-meta">{timeAgo(activePost.createdAt)}</div>
+                        <div className="post-meta">{timeAgo(activePublishedTime)}</div>
                       </div>
                       <div className="post-menu">
                         <button

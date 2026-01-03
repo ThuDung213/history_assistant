@@ -59,14 +59,15 @@
 
 .close-btn {
   position: absolute;
-  right: 15px;
-  top: 12px;
-  background: transparent;
-  border: none;
+  right: 250px;
+  top: 150px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 999px;
   font-size: 28px;
   cursor: pointer;
   color: #666;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
   z-index: 100;
   padding: 5px 10px;
   line-height: 1;
@@ -74,6 +75,7 @@
 
 .close-btn:hover {
   color: #000;
+  background: #f0f0f0;
 }
 
 /* Responsive design */
@@ -91,8 +93,8 @@
 
   .close-btn {
     font-size: 24px;
-    right: 10px;
-    top: 10px;
+    right: 16px;
+    top: 14px;
   }
 }
 
@@ -110,8 +112,8 @@
 
   .close-btn {
     font-size: 20px;
-    right: 8px;
-    top: 8px;
+    right: 14px;
+    top: 12px;
   }
 }
 
@@ -281,27 +283,3 @@
   line-height: 1.4;
 }
 
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  font-size: 20px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  transition: background 0.15s;
-  z-index: 5;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
-}

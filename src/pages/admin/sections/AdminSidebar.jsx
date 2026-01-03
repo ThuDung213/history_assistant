@@ -3,13 +3,60 @@ import { NavLink as RouterNavLink } from "react-router-dom";
 import {
     LayoutDashboard,
     FolderOpen,
+    ShieldCheck,
+    Flag,
     Settings,
     LogOut,
-    Gem,
     ChevronLeft,
     ChevronRight,
+    Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+// Place the provided branding image at: public/branding/vietnam-dongson.jpg
+// It will be served at runtime as: /branding/vietnam-dongson.jpg
+const BRAND_LOGO_SRC = "/branding/vietnam-dongson.jpg";
+
+const FallbackHistoryVietnamLogo = ({ className = "" }) => {
+    return (
+        <svg
+            className={className}
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Logo lịch sử Việt Nam"
+        >
+            {/* Dong Son drum-inspired background (stylized) */}
+            <circle cx="32" cy="32" r="30" stroke="currentColor" strokeOpacity="0.22" strokeWidth="2" />
+            <circle cx="32" cy="32" r="22" stroke="currentColor" strokeOpacity="0.16" strokeWidth="2" />
+            <circle cx="32" cy="32" r="14" stroke="currentColor" strokeOpacity="0.12" strokeWidth="2" />
+
+            {/* Radial marks */}
+            <g stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" strokeLinecap="round">
+                <path d="M32 6v6" />
+                <path d="M32 52v6" />
+                <path d="M6 32h6" />
+                <path d="M52 32h6" />
+                <path d="M14 14l4 4" />
+                <path d="M46 46l4 4" />
+                <path d="M50 14l-4 4" />
+                <path d="M18 46l-4 4" />
+            </g>
+
+            {/* Vietnam silhouette (fallback, simplified) */}
+            <path
+                d="M38 8 C34 9,33 12,31 14 C29 16,28 18,29 20 C30 22,29 24,27 26 C25 28,24 30,25 32
+                   C26 34,25 36,23 38 C21 40,20 42,21 44 C22 46,21 49,19 51 C17 53,17 56,19 58
+                   C22 61,27 59,30 58 C32 57,34 56,35 54 C36 52,35 50,36 48 C37 46,39 44,40 42
+                   C41 40,40 38,41 36 C42 34,44 32,44 30 C44 28,42 26,42 24 C42 22,44 20,43 18
+                   C42 15,41 12,40 10 C39 9,39 8.5,38 8 Z"
+                fill="currentColor"
+                fillOpacity="0.88"
+            />
+        </svg>
+    );
+};
 
 // ====== MENU CONFIG (DÙNG URL, KHÔNG DÙNG KEY) ======
 const navItems = [
@@ -19,18 +66,23 @@ const navItems = [
         to: "/admin/dashboard",
     },
     {
+        name: "Quản lý người dùng",
+        icon: Users,
+        to: "/admin/users",
+    },
+    {
         name: "Quản lý địa điểm",
         icon: FolderOpen,
         to: "/admin/locations",
     },
     {
         name: "Kiểm duyệt bài viết",
-        icon: FolderOpen,
+        icon: ShieldCheck,
         to: "/admin/posts/moderation",
     },
     {
         name: "Báo cáo vi phạm",
-        icon: FolderOpen,
+        icon: Flag,
         to: "/admin/posts/reports",
     },
 ];
@@ -72,6 +124,7 @@ const NavItem = ({ item, isCollapsed }) => {
 export default function Sidebar() {
     const navigate = useNavigate();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [brandLogoOk, setBrandLogoOk] = useState(true);
 
     const handleAdminLogout = () => {
         localStorage.removeItem("admin_token");
@@ -114,14 +167,23 @@ export default function Sidebar() {
                 className={`flex items-center h-14 mb-8 ${isCollapsed ? "justify-center" : "justify-between"
                     }`}
             >
-                {!isCollapsed && (
-                    <div className="flex items-center overflow-hidden">
-                        <Gem className="w-7 h-7 text-indigo-600 shrink-0" />
+                <div className="flex items-center overflow-hidden">
+                    {brandLogoOk ? (
+                        <img
+                            src={BRAND_LOGO_SRC}
+                            alt="Logo bản đồ Việt Nam và trống đồng"
+                            className="w-10 h-10 shrink-0 rounded-lg object-cover"
+                            onError={() => setBrandLogoOk(false)}
+                        />
+                    ) : (
+                        <FallbackHistoryVietnamLogo className="w-9 h-9 text-indigo-600 shrink-0" />
+                    )}
+                    {!isCollapsed && (
                         <h1 className="text-xl font-extrabold text-gray-800 ml-2 whitespace-nowrap">
-                            Ứng dụng React
+                            Dashboard
                         </h1>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 <button
                     onClick={toggleSidebar}

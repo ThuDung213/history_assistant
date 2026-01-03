@@ -1,7 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { useState } from "react";
-import ControlButtons from "../../components/ControlButtons";
-import { askAgent } from "../../api/agentAPI";
+import { askAgent } from "../../api/agentApi";
 import MicrophoneControl from "../../components/MicrophoneControl";
 import VoiceSelector from "../../components/VoiceSelector";
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
@@ -29,9 +28,9 @@ function AgentPage() {
         setAnimation("Idle");
         setSpeakingText("Tôi đang suy nghĩ");
 
-        const answer = await askAgent(transcript);
-        console.log("answer", answer.answer);
-        handleSpeech(answer.answer);
+                const answer = await askAgent(transcript);
+                console.log("answer", answer);
+                handleSpeech(answer);
     }
   );
 
@@ -68,13 +67,6 @@ function AgentPage() {
                     speakingText={speakingText}
                 />
             </Canvas>
-
-            <ControlButtons
-                onSpeech={handleSpeech}
-                onVoiceSelector={toggleVoiceSelector}
-                showVoiceSelector={showVoiceSelector}
-                selectedVoice={selectedVoice}
-            />
 
             <MicrophoneControl
                 isListening={isListening}
