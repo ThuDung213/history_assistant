@@ -25,6 +25,8 @@ import PostReports from "./pages/admin/sections/PostReports";
 import UserManagement from "./pages/admin/sections/UserManagement";
 import GalleryPage from "./pages/gallery/GalleryPage";
 import SettingsPage from "./pages/settings/SettingsPage";
+import VlogPostEditorWithChat from "./pages/admin/posts/VlogPostEditorWithChat";
+import GalleryManager from "./pages/admin/gallery/GalleryManager";
 
 const ContentMenu = () => {
   const location = useLocation();
@@ -176,7 +178,11 @@ function App() {
           >
             <Route index path="dashboard" element={<HomePageContent />} />
             <Route path="locations" element={<PostsPage />} />
-            <Route path="locations/create" element={<VlogPostEditor />} />
+            <Route
+              path="locations/create"
+              element={<VlogPostEditorWithChat />}
+            />
+            <Route path="gallery" element={<GalleryManager />} />
             <Route path="posts/moderation" element={<PostModeration />} />
             <Route path="posts/reports" element={<PostReports />} />
             <Route path="users" element={<UserManagement />} />

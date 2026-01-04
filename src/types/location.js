@@ -5,6 +5,15 @@
  */
 
 /**
+ * @typedef {Object} ImageItem
+ * @property {string} url
+ * @property {string=} publicId
+ * @property {string=} caption
+ * @property {number=} width
+ * @property {number=} height
+ */
+
+/**
  * @typedef {Object} HistoricalSitePayload
  * @property {string} siteName
  * @property {string=} siteType
@@ -23,6 +32,7 @@
  * @property {string=} ticketPrice
  * @property {string=} tips
  * @property {TimelineEvent[]} timelineEvents
+ * @property {ImageItem[]=} images
  */
 
 /**
@@ -46,9 +56,10 @@
  * @property {string=} ticketPrice
  * @property {string=} tips
  * @property {TimelineEvent[]=} timelineEvents
+ * @property {ImageItem[]=} images
  * @property {string=} createdBy
  * @property {string=} createdAt
  * @property {string=} updatedAt
  */
 
-export { };
+export {};
