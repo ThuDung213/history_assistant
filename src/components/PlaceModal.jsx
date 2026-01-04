@@ -8,6 +8,14 @@ const PlaceModal = ({ open, location, onClose }) => {
   const historyPages = splitToPages(location.history);
   return (
     <div key={location.id} className="modal-overlay">
+      <button
+        type="button"
+        className="close-btn"
+        onClick={onClose}
+        aria-label="Close"
+      >
+        ×
+      </button>
       <HTMLFlipBook width={400} height={500} showCover>
         {/* Cover */}
         <div className="page">

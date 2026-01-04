@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -20,6 +19,8 @@ import {
   Typography,
 } from '@mui/material';
 
+import { Filter, Flag, RefreshCcw, Search, Users } from 'lucide-react';
+
 import {
   adminDeleteCommunityPost,
   adminDismissCommunityReportsForPost,
@@ -29,6 +30,11 @@ import {
 const normalizeItems = (data) => {
   const items = data?.items ?? data?.data?.items ?? data?.results ?? data ?? [];
   return Array.isArray(items) ? items : [];
+};
+
+const normalizeTotal = (data) => {
+  const total = data?.total ?? data?.data?.total ?? data?.count ?? data?.totalCount;
+  return Number.isFinite(Number(total)) ? Number(total) : null;
 };
 
 const formatTime = (value) => {
@@ -118,10 +124,16 @@ const getResolvedActionColor = (label) => {
 
 export default function PostReports() {
   const [status, setStatus] = useState('open'); // open | resolved (depends on BE)
+  const [searchTerm, setSearchTerm] = useState('');
   const [rowsRaw, setRowsRaw] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [busyById, setBusyById] = useState({});
+
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [total, setTotal] = useState(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow, setDetailRow] = useState(null);
@@ -135,12 +147,34 @@ export default function PostReports() {
 
   const setBusy = (postId, val) => setBusyById((s) => ({ ...s, [postId]: val }));
 
-  const load = async () => {
+  const load = async (overrides = {}) => {
+    const effectiveStatus = overrides.status ?? status;
+    const effectivePage = Number.isFinite(Number(overrides.page)) ? Number(overrides.page) : page;
+    const effectiveLimit = Number.isFinite(Number(overrides.limit)) ? Number(overrides.limit) : limit;
+
     setLoading(true);
     setError('');
     try {
-      const data = await adminListCommunityReports({ status, limit: 50 });
-      setRowsRaw(normalizeItems(data));
+      const data = await adminListCommunityReports({
+        status: effectiveStatus,
+        limit: effectiveLimit,
+        offset: effectivePage * effectiveLimit,
+      });
+      const items = normalizeItems(data);
+      const nextTotal = normalizeTotal(data);
+
+      if (items.length === 0 && effectivePage > 0) {
+        setPage(0);
+        return;
+      }
+
+      setRowsRaw(items);
+      setTotal(nextTotal);
+      if (nextTotal != null) {
+        setHasNext(effectivePage * effectiveLimit + items.length < nextTotal);
+      } else {
+        setHasNext(items.length === effectiveLimit);
+      }
     } catch (e) {
       setError(
         e?.detail ||
@@ -148,6 +182,8 @@ export default function PostReports() {
           'Không tải được danh sách báo cáo. (BE cần cung cấp GET /admin/community/reports)'
       );
       setRowsRaw([]);
+      setHasNext(false);
+      setTotal(null);
     } finally {
       setLoading(false);
     }
@@ -156,7 +192,7 @@ export default function PostReports() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, page, limit]);
 
   const rows = useMemo(() => {
     return (rowsRaw || []).map((x) => {
@@ -209,6 +245,24 @@ export default function PostReports() {
       };
     });
   }, [rowsRaw]);
+
+  const filteredRows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+
+    return (rows || []).filter((r) => {
+      const hay = [
+        r?.author,
+        r?.content,
+        r?.link,
+        Array.isArray(r?.reasons) ? r.reasons.join(' ') : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [rows, searchTerm]);
 
   const openDetail = (row) => {
     setDetailRow(row || null);
@@ -295,34 +349,25 @@ export default function PostReports() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h5" fontWeight={800}>
-          Báo cáo vi phạm
-        </Typography>
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+              <Flag className="text-indigo-600" size={32} />
+              Báo Cáo Vi Phạm
+            </h1>
+          </div>
 
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Chip
-            label="Đang mở"
-            color={status === 'open' ? 'primary' : 'default'}
-            onClick={() => setStatus('open')}
-            clickable
-          />
-          <Chip
-            label="Đã xử lý"
-            color={status === 'resolved' ? 'primary' : 'default'}
-            onClick={() => setStatus('resolved')}
-            clickable
-          />
-          <Button variant="outlined" onClick={load} disabled={loading}>
-            Tải lại
-          </Button>
-        </Stack>
-      </Stack>
-
-      <Alert severity="info" sx={{ mb: 2 }}>
-        Màn hình này hiển thị các bài bị người dùng báo cáo. Admin có thể <b>Duyệt</b> (xóa bài) hoặc{' '}
-        <b>Từ chối</b> (bác báo cáo, giữ bài) trực tiếp.
-      </Alert>
+          <button
+            type="button"
+            onClick={load}
+            disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all shadow-md active:scale-95"
+          >
+            <RefreshCcw size={18} />
+            Làm mới
+          </button>
+        </header>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -330,14 +375,50 @@ export default function PostReports() {
         </Alert>
       )}
 
-      <Paper sx={{ p: 2 }}>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table size="small">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="md:col-span-2 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input
+              type="text"
+              placeholder="Tìm theo tác giả / nội dung / lý do..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-span-1 relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <select
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm cursor-pointer"
+              value={status}
+              onChange={(e) => {
+                const next = e.target.value;
+                setStatus(next);
+                setPage(0);
+                load({ status: next, page: 0 });
+              }}
+            >
+              <option value="open">Đang mở</option>
+              <option value="resolved">Đã xử lý</option>
+            </select>
+          </div>
+
+          <div className="bg-indigo-50 border border-indigo-100 p-2.5 rounded-xl flex items-center justify-center gap-3 shadow-sm">
+            <Users className="text-indigo-600" size={18} />
+            <span className="text-sm font-medium text-indigo-700">Tổng:</span>
+            <span className="text-xl font-bold text-indigo-800">{total ?? filteredRows.length}</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer>
+              <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 800 }}>Tác giả</TableCell>
@@ -354,14 +435,14 @@ export default function PostReports() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.length === 0 ? (
+                {filteredRows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7}>
                       <Typography color="text.secondary">Không có báo cáo.</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((r) => (
+                  filteredRows.map((r) => (
                     <TableRow
                       key={String(r.postId)}
                       hover
@@ -442,10 +523,52 @@ export default function PostReports() {
                   ))
                 )}
               </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+              </Table>
+            </TableContainer>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-200 bg-white">
+            <div className="text-sm text-slate-600">Trang {page + 1}</div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600">Mỗi trang</span>
+              <select
+                className="pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm cursor-pointer"
+                value={String(limit)}
+                onChange={(e) => {
+                  const next = Number(e.target.value) || 20;
+                  setLimit(next);
+                  setPage(0);
+                  load({ limit: next, page: 0 });
+                }}
+                disabled={loading}
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+
+              <button
+                type="button"
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0 || loading}
+              >
+                Trước
+              </button>
+
+              <button
+                type="button"
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!hasNext || loading}
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={detailOpen} onClose={closeDetail} maxWidth="md" fullWidth>
         <DialogTitle>Chi tiết bài viết</DialogTitle>

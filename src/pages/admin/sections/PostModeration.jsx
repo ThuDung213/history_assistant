@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -21,6 +20,8 @@ import {
   Typography,
 } from '@mui/material';
 
+import { Filter, RefreshCcw, Search, Shield, Users } from 'lucide-react';
+
 import {
   adminApproveCommunityPost,
   adminListCommunityPosts,
@@ -31,6 +32,11 @@ import {
 const normalizeItems = (data) => {
   const items = data?.items ?? data?.data?.items ?? data?.results ?? data ?? [];
   return Array.isArray(items) ? items : [];
+};
+
+const normalizeTotal = (data) => {
+  const total = data?.total ?? data?.data?.total ?? data?.count ?? data?.totalCount;
+  return Number.isFinite(Number(total)) ? Number(total) : null;
 };
 
 const formatTime = (value) => {
@@ -46,10 +52,16 @@ const formatTime = (value) => {
 
 export default function PostModeration() {
   const [status, setStatus] = useState('pending');
+  const [searchTerm, setSearchTerm] = useState('');
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [busyById, setBusyById] = useState({});
+
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [total, setTotal] = useState(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow, setDetailRow] = useState(null);
@@ -68,15 +80,39 @@ export default function PostModeration() {
 
   const setBusy = (postId, val) => setBusyById((s) => ({ ...s, [postId]: val }));
 
-  const load = async () => {
+  const load = async (overrides = {}) => {
+    const effectiveStatus = overrides.status ?? status;
+    const effectivePage = Number.isFinite(Number(overrides.page)) ? Number(overrides.page) : page;
+    const effectiveLimit = Number.isFinite(Number(overrides.limit)) ? Number(overrides.limit) : limit;
+
     setLoading(true);
     setError('');
     try {
-      const data = await adminListCommunityPosts({ status, limit: 50 });
-      setPosts(normalizeItems(data));
+      const data = await adminListCommunityPosts({
+        status: effectiveStatus,
+        limit: effectiveLimit,
+        offset: effectivePage * effectiveLimit,
+      });
+      const items = normalizeItems(data);
+      const nextTotal = normalizeTotal(data);
+
+      if (items.length === 0 && effectivePage > 0) {
+        setPage(0);
+        return;
+      }
+
+      setPosts(items);
+      setTotal(nextTotal);
+      if (nextTotal != null) {
+        setHasNext(effectivePage * effectiveLimit + items.length < nextTotal);
+      } else {
+        setHasNext(items.length === effectiveLimit);
+      }
     } catch (e) {
       setError(e?.detail || e?.message || 'Không tải được danh sách bài viết.');
       setPosts([]);
+      setHasNext(false);
+      setTotal(null);
     } finally {
       setLoading(false);
     }
@@ -85,7 +121,7 @@ export default function PostModeration() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, page, limit]);
 
   const onApprove = async (postId) => {
     setBusy(postId, true);
@@ -227,48 +263,46 @@ export default function PostModeration() {
     });
   }, [posts, status]);
 
+  const filteredRows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+
+    return (rows || []).filter((r) => {
+      const hay = [
+        r?.author,
+        r?.content,
+        r?.link,
+        Array.isArray(r?.flags) ? r.flags.join(' ') : '',
+        r?.moderationNote,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [rows, searchTerm]);
+
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h5" fontWeight={800}>
-          Kiểm duyệt bài viết
-        </Typography>
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+              <Shield className="text-indigo-600" size={32} />
+              Kiểm Duyệt Bài Viết
+            </h1>
+          </div>
 
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Chip
-            label="Chờ duyệt"
-            color={status === 'pending' ? 'primary' : 'default'}
-            onClick={() => setStatus('pending')}
-            clickable
-          />
-          <Chip
-            label="Cần chỉnh sửa"
-            color={status === 'need_edit' ? 'primary' : 'default'}
-            onClick={() => setStatus('need_edit')}
-            clickable
-          />
-          <Chip
-            label="Đã duyệt"
-            color={status === 'approved' ? 'primary' : 'default'}
-            onClick={() => setStatus('approved')}
-            clickable
-          />
-          <Chip
-            label="Từ chối"
-            color={status === 'rejected' ? 'primary' : 'default'}
-            onClick={() => setStatus('rejected')}
-            clickable
-          />
-          <Button variant="outlined" onClick={load} disabled={loading}>
-            Tải lại
-          </Button>
-        </Stack>
-      </Stack>
-
-      <Alert severity="info" sx={{ mb: 2 }}>
-        Ưu tiên <b>Need Edit</b> (góp ý chỉnh sửa) thay vì từ chối thẳng. Các bài thuộc chủ đề nhạy cảm
-        (ví dụ: thời kỳ Pháp thuộc, chiến tranh, nhân vật gây tranh cãi…) sẽ được gắn cờ để kiểm duyệt kỹ.
-      </Alert>
+          <button
+            type="button"
+            onClick={load}
+            disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all shadow-md active:scale-95"
+          >
+            <RefreshCcw size={18} />
+            Làm mới
+          </button>
+        </header>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -276,14 +310,52 @@ export default function PostModeration() {
         </Alert>
       )}
 
-      <Paper sx={{ p: 2 }}>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table size="small">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="md:col-span-2 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input
+              type="text"
+              placeholder="Tìm theo tác giả / nội dung / cờ..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-span-1 relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <select
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl appearance-none focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm cursor-pointer"
+              value={status}
+              onChange={(e) => {
+                const next = e.target.value;
+                setStatus(next);
+                setPage(0);
+                load({ status: next, page: 0 });
+              }}
+            >
+              <option value="pending">Chờ duyệt</option>
+              <option value="need_edit">Cần chỉnh sửa</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="rejected">Từ chối</option>
+            </select>
+          </div>
+
+          <div className="bg-indigo-50 border border-indigo-100 p-2.5 rounded-xl flex items-center justify-center gap-3 shadow-sm">
+            <Users className="text-indigo-600" size={18} />
+            <span className="text-sm font-medium text-indigo-700">Tổng:</span>
+            <span className="text-xl font-bold text-indigo-800">{total ?? filteredRows.length}</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer>
+              <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 800 }}>Tác giả</TableCell>
@@ -299,14 +371,14 @@ export default function PostModeration() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.length === 0 ? (
+                {filteredRows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6}>
                       <Typography color="text.secondary">Không có bài viết.</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((r) => (
+                  filteredRows.map((r) => (
                     <TableRow
                       key={String(r.id)}
                       hover
@@ -414,10 +486,52 @@ export default function PostModeration() {
                   ))
                 )}
               </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+              </Table>
+            </TableContainer>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-200 bg-white">
+            <div className="text-sm text-slate-600">Trang {page + 1}</div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600">Mỗi trang</span>
+              <select
+                className="pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm cursor-pointer"
+                value={String(limit)}
+                onChange={(e) => {
+                  const next = Number(e.target.value) || 20;
+                  setLimit(next);
+                  setPage(0);
+                  load({ limit: next, page: 0 });
+                }}
+                disabled={loading}
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+
+              <button
+                type="button"
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0 || loading}
+              >
+                Trước
+              </button>
+
+              <button
+                type="button"
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!hasNext || loading}
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={detailOpen} onClose={closeDetail} maxWidth="md" fullWidth>
         <DialogTitle>Chi tiết bài viết</DialogTitle>

@@ -83,3 +83,36 @@ export async function adminDeleteCommunityPost(postId) {
     const res = await adminClient.delete(`/admin/community/posts/${postId}`);
     return unwrap(res);
 }
+
+// --- User management (Admin) ---
+// Required BE endpoints:
+// GET    /admin/users?search=&status=&limit=&offset=
+// GET    /admin/users/:userId
+// PATCH  /admin/users/:userId/lock   { reason: string, until?: string }
+// PATCH  /admin/users/:userId/unlock { reason: string }
+// GET    /admin/users/:userId/audit-logs?limit=&offset=
+
+export async function adminListUsers(params = {}, options = {}) {
+    const res = await adminClient.get(`/admin/users`, { params, ...options });
+    return unwrap(res);
+}
+
+export async function adminGetUser(userId, options = {}) {
+    const res = await adminClient.get(`/admin/users/${userId}`, { ...options });
+    return unwrap(res);
+}
+
+export async function adminLockUser(userId, payload = {}) {
+    const res = await adminClient.patch(`/admin/users/${userId}/lock`, payload);
+    return unwrap(res);
+}
+
+export async function adminUnlockUser(userId, payload = {}) {
+    const res = await adminClient.patch(`/admin/users/${userId}/unlock`, payload);
+    return unwrap(res);
+}
+
+export async function adminListUserAuditLogs(userId, params = {}, options = {}) {
+    const res = await adminClient.get(`/admin/users/${userId}/audit-logs`, { params, ...options });
+    return unwrap(res);
+}
