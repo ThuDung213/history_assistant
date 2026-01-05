@@ -3,26 +3,29 @@ import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL;
 
 /**
- * @param {import('../types/location').HistoricalSitePayload} payload
+ * Update a location by id (admin)
+ * @param {string} id
+ * @param {Object} payload
  */
-export async function createHistoricalLocation(payload) {
+export async function updateLocationById(id, payload) {
   try {
-    // Get admin token from localStorage
     const token = localStorage.getItem("admin_token");
 
     if (!token) {
       throw new Error("Admin authentication required. Please login first.");
     }
-    const res = await axios.post(`${API_URL}/admin/locations/create`, payload, {
+
+    const res = await axios.patch(`${API_URL}/admin/locations/${id}`, payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
     return res.data;
   } catch (error) {
     throw (
       error.response?.data || {
-        detail: error.message || "Create location failed",
+        detail: error.message || "Update location failed",
       }
     );
   }

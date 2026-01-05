@@ -1,16 +1,16 @@
-// src/hooks/locations/useCreateLocation.js
+// src/hooks/locations/useUpdateLocation.js
 import { useState } from "react";
 import { locationApi } from "../../api/locations/locationApi";
 
-export function useCreateLocation() {
+export function useUpdateLocation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const submitLocation = async (payload) => {
+  const updateLocation = async (id, payload) => {
     setLoading(true);
     setError(null);
     try {
-      return await locationApi.createLocation(payload);
+      return await locationApi.updateLocation(id, payload);
     } catch (err) {
       setError(err?.response?.data || err);
       throw err;
@@ -19,5 +19,5 @@ export function useCreateLocation() {
     }
   };
 
-  return { submitLocation, loading, error };
+  return { updateLocation, loading, error };
 }
