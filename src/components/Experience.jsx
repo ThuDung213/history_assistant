@@ -6,7 +6,7 @@ export const Experience = ({ animation, setAnimation, speakingText }) => {
   // Lấy giờ hiện tại
   const hour = new Date().getHours();
   // Chọn background theo giờ
-  const bgFile = (hour >= 6 && hour < 18) ? '/textures/bg.png' : '/textures/bg_night.png';
+  const bgFile = (hour >= 6 && hour < 18) ? '/textures/bg.jpg' : '/textures/bg_night.jpg';
   const texture = useTexture(bgFile);
   const viewport = useThree((state) => state.viewport);
   return (

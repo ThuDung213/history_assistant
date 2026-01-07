@@ -1,6 +1,18 @@
 function generateLipSyncFromText(text) {
     const result = [];
-    const chars = text.replace(/\s+/g, '').split('');
+
+    // Be defensive: callers should pass a string, but API responses can sometimes be objects.
+    let normalizedText = text;
+    if (normalizedText == null) return result;
+    if (typeof normalizedText !== 'string') {
+        if (typeof normalizedText === 'object' && typeof normalizedText.answer === 'string') {
+            normalizedText = normalizedText.answer;
+        } else {
+            return result;
+        }
+    }
+
+    const chars = normalizedText.replace(/\s+/g, '').split('');
     let time = 0;
     const timePerChar = 0.12; // 120ms/âm, đọc tiếng Việt chậm hơn chút
 

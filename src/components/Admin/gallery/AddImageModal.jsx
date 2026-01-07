@@ -7,6 +7,7 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
   const [location, setLocation] = useState("");
   const [verified, setVerified] = useState(false);
   const [year, setYear] = useState(defaultYear || new Date().getFullYear());
+  const [saving, setSaving] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
       setVerified(false);
       setYear(defaultYear || new Date().getFullYear());
       setPreview(null);
+      setSaving(false);
     }
   }, [open, defaultYear]);
 
@@ -35,9 +37,15 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
 
   const handleFileSelect = (e) => setFile(e.target.files?.[0] || null);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!file) return alert("Vui lòng chọn file ảnh");
-    onSave({ file, caption, location, verified, year });
+    if (saving) return;
+    try {
+      setSaving(true);
+      await Promise.resolve(onSave({ file, caption, location, verified, year }));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -47,7 +55,8 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
           <h3 className="text-lg font-semibold">Thêm ảnh mới</h3>
           <button
             onClick={onClose}
-            className="text-sm text-gray-500 hover:text-red-600"
+            disabled={saving}
+            className="text-sm text-gray-500 hover:text-red-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Đóng
           </button>
@@ -77,6 +86,7 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
                   type="file"
                   accept="image/*"
                   onChange={handleFileSelect}
+                  disabled={saving}
                   className="hidden"
                 />
               </label>
@@ -86,7 +96,8 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
                   if (inputRef.current) inputRef.current.value = null;
                   setPreview(null);
                 }}
-                className="px-3 py-2 border rounded text-sm text-red-600"
+                disabled={saving}
+                className="px-3 py-2 border rounded text-sm text-red-600 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Xóa
               </button>
@@ -145,14 +156,19 @@ export default function AddImageModal({ open, onClose, onSave, defaultYear }) {
             </div>
 
             <div className="flex items-center justify-end gap-3 mt-4">
-              <button onClick={onClose} className="px-4 py-2 border rounded">
+              <button
+                onClick={onClose}
+                disabled={saving}
+                className="px-4 py-2 border rounded disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 Hủy
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-indigo-600 text-white rounded"
+                disabled={saving}
+                className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Lưu
+                {saving ? "Đang lưu..." : "Lưu"}
               </button>
             </div>
           </div>

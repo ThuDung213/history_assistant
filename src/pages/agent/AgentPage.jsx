@@ -28,9 +28,9 @@ function AgentPage() {
         setAnimation("Idle");
         setSpeakingText("Tôi đang suy nghĩ");
 
-                const answer = await askAgent(transcript);
-                console.log("answer", answer);
-                handleSpeech(answer);
+                                const response = await askAgent(transcript);
+                                console.log("answer", response);
+                                handleSpeech(response?.answer || "");
     }
   );
 
