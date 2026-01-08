@@ -58,9 +58,12 @@
 }
 
 .close-btn {
-  position: absolute;
-  right: 250px;
-  top: 150px;
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  right: auto;
+  top: auto;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 999px;
@@ -93,8 +96,7 @@
 
   .close-btn {
     font-size: 24px;
-    right: 16px;
-    top: 14px;
+    bottom: 14px;
   }
 }
 
@@ -112,8 +114,7 @@
 
   .close-btn {
     font-size: 20px;
-    right: 14px;
-    top: 12px;
+    bottom: 12px;
   }
 }
 

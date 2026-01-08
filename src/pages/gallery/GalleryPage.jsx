@@ -12,7 +12,9 @@ function GalleryPage() {
 
   const currentGallery =
     galleries.find((g) => g.year === selectedYear) || galleries[0];
-  const allImages = galleries.flatMap((g) => g.images);
+  const allImages = galleries.flatMap((g) =>
+    (g.images || []).map((img) => ({ ...img, year: g.year }))
+  );
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   console.log(currentGallery.images);
