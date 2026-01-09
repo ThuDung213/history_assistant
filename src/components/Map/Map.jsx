@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
-import "../styles/map.css";
+import "../../styles/map.css";
 
-import PlaceModal from "./PlaceModal";
-import { locationsToGeoJSON } from "../utils/locationsToGeoJSON";
+import PlaceModal from "../HistoryBook/PlaceModal";
+import { locationsToGeoJSON } from "../../utils/locationsToGeoJSON";
 
 const INITIAL_CENTER = [108.21168309278522, 16.060197215687733];
 const INITIAL_ZOOM = 11;
@@ -99,30 +99,28 @@ const DanangMap = ({ locations }) => {
       );
     });
 
-    return () => {
-      mapRef.current.remove();
-    };
+    // Cleanup khi unmount
+    return () => map.remove();
   }, []);
 
   return (
-    <>
-      <div className="sidebar">
-        Longitude: {center[0].toFixed(4)} | Latitude: {center[1].toFixed(4)} |
-        Zoom: {zoom.toFixed(2)}
+    <div className="map-container-wrapper">
+      <div ref={mapContainerRef} className="map-container" />
+      <div className="center-coordinates">
+        LNG: {center[0].toFixed(4)} | LAT: {center[1].toFixed(4)} | ZOOM:{" "}
+        {zoom.toFixed(2)}
       </div>
       <button className="reset-button" onClick={handleButtonClick}>
-        Reset
+        Về trung tâm
       </button>
-      <div id="map-container" ref={mapContainerRef} />
 
-      {modalOpen && selectedPlace && (
-        <PlaceModal
-          open={modalOpen}
-          location={selectedPlace}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
-    </>
+      {/* Book Modal */}
+      <PlaceModal
+        open={modalOpen}
+        location={selectedPlace}
+        onClose={() => setModalOpen(false)}
+      />
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Landmark, Loader, Send } from "lucide-react";
-import { askAgent } from "../../../api/agentAPI";
+import { askAgent } from "../../../api/agentApi";
 import { SourceAttribution } from "../../../components/Admin/SourceAttribution";
 
 

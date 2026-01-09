@@ -3,6 +3,7 @@ import { Landmark, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { isAdminLoggedIn } from "../../../hooks/auth/useAuth";
 import { locationApi } from "../../../api/locations/locationApi";
+import RichTextEditor from "../../../components/RichTextEditor";
 
 // Component phụ cho Input cơ bản
 const InputField = ({
@@ -28,32 +29,6 @@ const InputField = ({
       required={required}
       className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 text-base"
     />
-  </div>
-);
-
-// Component phụ cho Textarea
-const TextareaField = ({
-  label,
-  id,
-  placeholder,
-  required = false,
-  rows = 4,
-  value,
-  onChange,
-}) => (
-  <div className="flex flex-col">
-    <label htmlFor={id} className="mb-1 text-sm font-medium text-gray-700">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <textarea
-      id={id}
-      placeholder={placeholder}
-      required={required}
-      rows={rows}
-      value={value}
-      onChange={onChange}
-      className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 text-base"
-    ></textarea>
   </div>
 );
 
@@ -240,45 +215,40 @@ export default function VlogPostEditor({ onSubmit, initialData = null }) {
             2. Nội dung chi tiết
           </h3>
           <div className="space-y-6">
-            <TextareaField
+            <RichTextEditor
               label="Lịch sử hình thành"
               id="history"
               placeholder="Chi tiết về quá trình xây dựng và phát triển..."
-              rows={6}
-              value={history}
-              onChange={(e) => setHistory(e.target.value)}
+              content={history}
+              onChange={setHistory}
             />
-            <TextareaField
+            <RichTextEditor
               label="Sự kiện nổi bật"
               id="keyEvents"
               placeholder="Các sự kiện lịch sử quan trọng đã diễn ra tại đây..."
-              rows={4}
-              value={keyEvents}
-              onChange={(e) => setKeyEvents(e.target.value)}
+              content={keyEvents}
+              onChange={setKeyEvents}
             />
-            <TextareaField
+            <RichTextEditor
               label="Kiến trúc – Đặc điểm"
               id="architecture"
               placeholder="Mô tả phong cách kiến trúc và các đặc điểm độc đáo..."
-              rows={4}
-              value={architecture}
-              onChange={(e) => setArchitecture(e.target.value)}
+              content={architecture}
+              onChange={setArchitecture}
             />
-            <TextareaField
+            <RichTextEditor
               label="Ý nghĩa lịch sử"
               id="significance"
               placeholder="Tầm quan trọng của địa điểm đối với quốc gia/khu vực..."
-              rows={4}
-              value={significance}
-              onChange={(e) => setSignificance(e.target.value)}
+              content={significance}
+              onChange={setSignificance}
             />
-            <TextareaField
+            <RichTextEditor
               label="Nội dung thêm"
               id="additionalContent"
               placeholder="Bất kỳ thông tin bổ sung nào khác..."
-              rows={4}
-              value={additionalContent}
-              onChange={(e) => setAdditionalContent(e.target.value)}
+              content={additionalContent}
+              onChange={setAdditionalContent}
             />
           </div>
         </section>

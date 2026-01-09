@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../styles/gallery.css";
 const RADIUS = 720;
 const SLICE_COUNT = 12;
@@ -6,13 +6,14 @@ const ITEM_SHIFT = 80;
 
 /**
  * @param {{
- *   images: { url: string }[]
+ *   images: { url: string, caption?: string, year?: number }[]
  * }} props
  */
 const DanangGallery = ({ images }) => {
   const el = useRef(null);
   const animId = useRef(0);
   const img = useRef(null);
+  const [selected, setSelected] = useState(null);
 
   // mutable variables used inside effect
   let angleUnit, sliceIndex, currentAngle, currentY, mouseX, mouseY;
@@ -68,13 +69,33 @@ const DanangGallery = ({ images }) => {
     img.current.style.transform = "scale(1, 1)";
   };
 
+  const pickImageItem = (imgItem) => {
+    if (!imgItem?.url) return;
+    setSelected({
+      url: imgItem.url,
+      caption: imgItem.caption,
+      year: imgItem.year,
+    });
+    pickImage(imgItem.url);
+  };
+
+  const closeViewer = () => {
+    if (img.current) img.current.style.transform = "scale(0, 0)";
+    setSelected(null);
+  };
+
+  const captionLine =
+    selected?.caption && selected?.year
+      ? `${selected.caption} – ${selected.year}`
+      : selected?.caption || (selected?.year ? String(selected.year) : "");
+
   return (
     <div className="gallery-container my-4">
       <div className="spiral-gallery" ref={el}>
         {images &&
           images.map((imgItem, index) => (
             <div
-              onClick={() => pickImage(imgItem.url)}
+              onClick={() => pickImageItem(imgItem)}
               key={index}
               style={{ backgroundImage: `url(${imgItem.url})` }}
               className="spiral-gallery-item"
@@ -82,13 +103,15 @@ const DanangGallery = ({ images }) => {
           ))}
       </div>
 
-      <div
-        onClick={() => {
-          if (img.current) img.current.style.transform = "scale(0, 0)";
-        }}
-        className="image-display"
-        ref={img}
-      />
+      <div className={`image-viewer ${selected ? "is-open" : ""}`}>
+        <div onClick={closeViewer} className="image-display" ref={img} />
+
+        {selected && (selected.caption || selected.year) ? (
+          <div className="image-caption" onClick={closeViewer}>
+            <div className="image-caption__text">{captionLine}</div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

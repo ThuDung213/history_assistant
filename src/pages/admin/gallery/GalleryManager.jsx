@@ -109,36 +109,80 @@ export default function GalleryManager() {
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
 
-  const handleAddImageSave = async ({
-    file,
-    caption,
-    location,
-    verified,
-    year,
-  }) => {
-    // Upload file, then set metadata via updateImage
+  const handleAddImageSave = async (payload) => {
+    // Supports both:
+    // - single: { file, caption, location, verified, year }
+    // - batch:  { items: [{ file, caption }...], location, verified, year }
+
+    const isBatch = Array.isArray(payload?.items);
+    const year = payload?.year;
+    const location = payload?.location || "";
+    const verified = !!payload?.verified;
+
+    const files = isBatch
+      ? payload.items.map((it) => it.file).filter(Boolean)
+      : [payload?.file].filter(Boolean);
+
+    if (!files.length) return;
+
     console.time("gallery:upload");
-    const uploaded = await handleUpload([file], year);
+    const uploaded = await handleUpload(files, year);
     console.timeEnd("gallery:upload");
     if (!uploaded || uploaded.length === 0) return;
-    const u = uploaded[0] || {};
-    const publicId = u.publicId || u.public_id || null;
-    const url = u.url || u.secure_url || u.src || null;
-    // save metadata (prefer publicId, fallback to url)
+
+    const uploads = uploaded.map((u) => ({
+      raw: u,
+      publicId: u?.publicId || u?.public_id || null,
+      url: u?.url || u?.secure_url || u?.src || null,
+      filename:
+        u?.filename ||
+        u?.originalFilename ||
+        u?.original_filename ||
+        u?.name ||
+        null,
+    }));
+
+    // Build a best-effort mapping upload -> caption
+    const getCaptionForUpload = (uploadObj, index) => {
+      if (!isBatch) return payload?.caption || "";
+      const byName = uploadObj?.filename
+        ? payload.items.find((it) => it?.file?.name === uploadObj.filename)
+        : null;
+      if (byName) return byName.caption || "";
+      return payload.items[index]?.caption || "";
+    };
+
     try {
       console.time("gallery:updateImage");
-      if (publicId) {
-        await galleryApi.updateImage({ publicId, caption, location, verified });
-      } else if (url) {
-        await galleryApi.updateImage({ url, caption, location, verified });
+      for (let idx = 0; idx < uploads.length; idx++) {
+        const u = uploads[idx];
+        const caption = getCaptionForUpload(u, idx);
+        if (u.publicId) {
+          await galleryApi.updateImage({
+            publicId: u.publicId,
+            caption,
+            location,
+            verified,
+          });
+          continue;
+        }
+        if (u.url) {
+          await galleryApi.updateImage({
+            url: u.url,
+            caption,
+            location,
+            verified,
+          });
+        }
       }
       console.timeEnd("gallery:updateImage");
     } catch (err) {
       console.error("Failed to update metadata", err);
     }
+
     await fetchGallery();
     closeAddModal();
-    alert("Ảnh đã được thêm");
+    alert("Upload thành công");
   };
 
   const toggleYear = (year) => {

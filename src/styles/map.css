@@ -1,19 +1,19 @@
-#root {
+.map-container-wrapper {
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
   bottom: 0;
-  left: 0;
+  z-index: 0;
 }
 
-#map-container {
+.map-container {
   height: 100%;
   width: 100%;
-  /* temporarily set the background color so we can tell where the map container is positioned */
   background-color: lightgrey;
 }
 
-.sidebar {
+.center-coordinates {
   background-color: rgb(35 55 75 / 90%);
   color: #fff;
   padding: 6px 12px;
