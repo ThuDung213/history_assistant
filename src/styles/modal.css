@@ -159,7 +159,12 @@
   justify-content: flex-start;
   align-items: stretch;
   text-align: left;
-  overflow: hidden;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-rendering: optimizeLegibility;
 }
 
 .cover {
@@ -284,7 +289,8 @@
 }
 
 .prose {
-  line-height: 1.6;
+  font-family: "Times New Roman", "Georgia", "Segoe UI", Tahoma, serif;
+  line-height: 1.75;
   font-size: 16px;
 }
 

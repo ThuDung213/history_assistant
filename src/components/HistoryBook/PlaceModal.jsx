@@ -38,6 +38,9 @@ const PlaceModal = ({ open, location, onClose }) => {
     images,
   } = location;
 
+  const normalizeText = (value) =>
+    typeof value === "string" ? value.normalize("NFC") : value;
+
   const fallbackImg =
     "https://images2.thanhnien.vn/528068263637045248/2024/1/25/e093e9cfc9027d6a142358d24d2ee350-65a11ac2af785880-17061562929701875684912.jpg";
 
@@ -50,9 +53,9 @@ const PlaceModal = ({ open, location, onClose }) => {
         <div className="cover-inner">
           <img src={logo} alt="Logo" className="cover-logo" />
           <div className="cover-title-wrap">
-            <h1 className="cover-title">{siteName}</h1>
+            <h1 className="cover-title">{normalizeText(siteName)}</h1>
             <div className="cover-divider"></div>
-            <p className="cover-subtitle">{locationType}</p>
+            <p className="cover-subtitle">{normalizeText(locationType)}</p>
           </div>
           <div className="cover-seal">HISTORICAL RECORD</div>
         </div>
@@ -77,7 +80,7 @@ const PlaceModal = ({ open, location, onClose }) => {
           e.currentTarget.src = fallbackImg;
         }}
       />
-      <p className="prose italic">{shortDescription}</p>
+      <p className="prose italic">{normalizeText(shortDescription)}</p>
     </BookPage>
   );
 

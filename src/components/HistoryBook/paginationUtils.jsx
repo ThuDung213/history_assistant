@@ -1,6 +1,35 @@
 import React from "react";
 import BookPage from "./BookPage";
 
+const normalizeHtmlTextNFC = (inputHtml) => {
+  if (typeof inputHtml !== "string") return inputHtml;
+
+  // Fast path
+  if (!inputHtml) return inputHtml;
+
+  try {
+    if (typeof window !== "undefined" && typeof window.DOMParser !== "undefined") {
+      const doc = new window.DOMParser().parseFromString(inputHtml, "text/html");
+      const walker = doc.createTreeWalker(
+        doc.body,
+        window.NodeFilter.SHOW_TEXT
+      );
+      let currentNode;
+      // Normalize only text nodes so tags/attributes remain intact
+      while ((currentNode = walker.nextNode())) {
+        if (typeof currentNode.nodeValue === "string") {
+          currentNode.nodeValue = currentNode.nodeValue.normalize("NFC");
+        }
+      }
+      return doc.body.innerHTML;
+    }
+  } catch {
+    // Ignore and fall back to string normalization
+  }
+
+  return inputHtml.normalize("NFC");
+};
+
 /**
  * Kiểm tra nội dung HTML có thực sự có chữ không
  */
@@ -20,8 +49,11 @@ export const hasContent = (html) => {
 export const renderContentPages = (html, title, baseKey) => {
   if (!hasContent(html)) return [];
 
+  // Normalize Vietnamese accents in the HTML text nodes (handles NFD + entity-based combining marks)
+  const normalizedHtml = normalizeHtmlTextNFC(html);
+
   // Tách content theo nhiều loại tag block để linh hoạt hơn
-  const blocks = html
+  const blocks = normalizedHtml
     .split(/(<\/p>|<\/li>|<\/div>|<br\s*\/?>)/gi)
     .filter((b) => b.trim() !== "");
 
